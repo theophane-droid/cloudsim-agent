@@ -1,4 +1,67 @@
-package PACKAGE_NAME;
+import org.apache.commons.math3.ml.neuralnet.Network;
+import org.cloudbus.cloudsim.Cloudlet;
+import org.cloudbus.cloudsim.DatacenterBroker;
+import org.cloudbus.cloudsim.Log;
+import org.cloudbus.cloudsim.Vm;
+import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.examples.power.Constants;
+import org.cloudbus.cloudsim.network.datacenter.NetDatacenterBroker;
+import org.cloudbus.cloudsim.network.datacenter.NetworkCloudlet;
+import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter;
+import org.cloudbus.cloudsim.network.datacenter.NetworkVm;
 
-public interface SimulationRunner {
+import java.util.List;
+
+/**
+ * Runner wich allows to run Network simulations
+ * @author Théophane Dumas
+ */
+public abstract class SimulationRunner {
+    protected List<AgentHost> hostList;
+    protected List<NetworkCloudlet> coudletList;
+    protected List<NetworkVm> vmLists;
+    protected NetworkDatacenter networkDatacenter;
+    protected NetDatacenterBroker broker;
+    private String name;
+    private String workload;
+    private String inputFolder;
+    private String outputFolder;
+    public SimulationRunner(String name,String workload, String inputFolder, String outputFolder){
+        this.name = name;
+        this.workload=workload;
+        this.inputFolder=inputFolder;
+        this.outputFolder=outputFolder;
+    }
+
+    /**
+     * Init the simulation
+     * @throws Exception
+     */
+    public abstract void init() throws Exception;
+
+    /**
+     * Start the simulation
+     */
+    public void start(){
+        broker.submitVmList(vmLists);
+        broker.submitCloudletList(coudletList);
+        broker.setLinkDC(networkDatacenter);
+        CloudSim.terminateSimulation(Constants.SIMULATION_LIMIT);
+        double lastClock = CloudSim.startSimulation();
+        System.out.println("last clock : " + lastClock);
+
+        List<Cloudlet> newList = broker.getCloudletReceivedList();
+        Log.printLine("Received " + newList.size() + " cloudlets");
+
+        CloudSim.stopSimulation();
+
+        NetworkHelper.printResults(
+                networkDatacenter,
+                vmLists,
+                lastClock,
+                name,
+                Constants.OUTPUT_CSV,
+                outputFolder
+                );
+    }
 }
