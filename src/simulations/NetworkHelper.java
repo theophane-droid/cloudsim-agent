@@ -1,14 +1,11 @@
-import org.apache.commons.math3.ml.neuralnet.Network;
+package simulations;
+
+import network.AgentHost;
+import network.AgentSwitch;
 import org.cloudbus.cloudsim.*;
-import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.examples.power.Constants;
-import org.cloudbus.cloudsim.examples.power.Helper;
 import org.cloudbus.cloudsim.examples.power.random.RandomConstants;
 import org.cloudbus.cloudsim.network.datacenter.*;
-import org.cloudbus.cloudsim.power.PowerDatacenterBroker;
-import org.cloudbus.cloudsim.power.PowerHost;
-import org.cloudbus.cloudsim.power.PowerHostUtilizationHistory;
-import org.cloudbus.cloudsim.power.PowerVm;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
@@ -84,32 +81,32 @@ public class NetworkHelper {
     public static void buildNetwork(int numhost, NetworkDatacenter dc) {
 
         int length = (int)Math.ceil(numhost/NetworkConstants.EdgeSwitchPort);
-        EdgeSwitch edgeswitch[] = new EdgeSwitch[length];
+        AgentSwitch agentSwitch[] = new AgentSwitch[length];
 
         for (int i = 0; i < length; i++) {
-            edgeswitch[i] = new EdgeSwitch("Edge" + i, NetworkConstants.EDGE_LEVEL, dc);
+            agentSwitch[i] = new AgentSwitch("Edge" + i, NetworkConstants.EDGE_LEVEL, dc);
         }
         for(int i=0; i<length; i++){
             if(i<length-1) {
                 System.out.println("1");
-                edgeswitch[i].uplinkswitches = new ArrayList<>();
-                edgeswitch[i].uplinkswitches.add(edgeswitch[i + 1]);
+                agentSwitch[i].uplinkswitches = new ArrayList<>();
+                agentSwitch[i].uplinkswitches.add(agentSwitch[i + 1]);
             }
             else{
                 System.out.println("2");
-                edgeswitch[i].uplinkswitches = new ArrayList<>();
-                edgeswitch[i].uplinkswitches.add(edgeswitch[0]);
+                agentSwitch[i].uplinkswitches = new ArrayList<>();
+                agentSwitch[i].uplinkswitches.add(agentSwitch[0]);
             }
-            System.out.println("uplink : " + i + " => " + edgeswitch[i].uplinkswitches);
-            dc.Switchlist.put(edgeswitch[i].getId(), edgeswitch[i]);
+            System.out.println("uplink : " + i + " => " + agentSwitch[i].uplinkswitches);
+            dc.Switchlist.put(agentSwitch[i].getId(), agentSwitch[i]);
         }
         for (Host hs : dc.getHostList()) {
             NetworkHost hs1 = (NetworkHost) hs;
             hs1.bandwidth = NetworkConstants.BandWidthEdgeHost;
             int switchnum = (int) (hs.getId() / NetworkConstants.EdgeSwitchPort);
-            edgeswitch[switchnum].hostlist.put(hs.getId(), hs1);
-            dc.HostToSwitchid.put(hs.getId(), edgeswitch[switchnum].getId());
-            hs1.sw = edgeswitch[switchnum];
+            agentSwitch[switchnum].hostlist.put(hs.getId(), hs1);
+            dc.HostToSwitchid.put(hs.getId(), agentSwitch[switchnum].getId());
+            hs1.sw = agentSwitch[switchnum];
             List<NetworkHost> hslist = hs1.sw.fintimelistHost.get(0D);
             if (hslist == null) {
                 hslist = new ArrayList<NetworkHost>();
