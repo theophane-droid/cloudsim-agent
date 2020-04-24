@@ -1,21 +1,28 @@
 package network;
 
+import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.network.datacenter.EdgeSwitch;
 import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter;
+import org.cloudbus.cloudsim.network.datacenter.NetworkHost;
+import org.cloudbus.cloudsim.network.datacenter.Switch;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
- * A class wich allow to recieved RawPaquet
+ * A class wich allow to recieved RawPaquet, and to switch off/on ports
+ * Warning : don't use hostlist and uplinkswitch
  * @author Théophane Dumas
  */
 public class AgentSwitch extends EdgeSwitch implements AgentActionner {
     private List<RawPacket> packetsToSort;
     private List<RawPacket> packetsRecieved;
+    private List<Port> hostConnexions;
+    private List<Port> upSwitchConnexions;
     /**
      * Constructor for AgentSwitch
      * @see EdgeSwitch#EdgeSwitch(String, int, NetworkDatacenter)
@@ -24,6 +31,8 @@ public class AgentSwitch extends EdgeSwitch implements AgentActionner {
         super(name, level, dc);
         packetsToSort = new ArrayList<>();
         packetsRecieved = new ArrayList<>();
+        hostConnexions = new ArrayList<>();
+        upSwitchConnexions = new ArrayList<>();
     }
 
     /**
@@ -85,6 +94,30 @@ public class AgentSwitch extends EdgeSwitch implements AgentActionner {
             }
         }
         if(!hasBeenSended)
-            CloudSim.send(dc.getId(), uplinkswitches.get(0).getId(), 100, CloudSimTags.Network_Event_UP, rawPacket);
+            CloudSim.send(dc.getId(), uplinkswitches.get(0).getId(), switching_delay, CloudSimTags.Network_Event_UP, rawPacket);
+    }
+
+    /**
+     * method to reset connexions based on what port is open. This method must be called after any changement on hostConnexions or upSwitchConnexion
+     */
+    private void updateConnexions(){
+        uplinkswitches = new ArrayList<>();
+        hostlist = new HashMap<>();
+        for (Port p: hostConnexions) {
+            if (p.isOpen)
+                hostlist.put(((Host) p.reliedObject).getId(), (NetworkHost) p.reliedObject);
+        }
+        for(Port p: upSwitchConnexions){
+            if(p.isOpen)
+                uplinkswitches.add((Switch) p.reliedObject);
+        }
+    }
+
+    public List<Port> getHostConnexions() {
+        return hostConnexions;
+    }
+
+    public List<Port> getUpSwitchConnexions() {
+        return upSwitchConnexions;
     }
 }

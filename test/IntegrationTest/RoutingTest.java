@@ -1,3 +1,5 @@
+package IntegrationTest;
+
 import network.AgentHost;
 import network.AgentSwitch;
 import network.RawPacket;
