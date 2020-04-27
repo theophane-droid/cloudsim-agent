@@ -55,7 +55,7 @@ public abstract class SimulationRunner {
 
         CloudSim.stopSimulation();
 
-        NetworkHelper.printResults(
+        PowerNetworkHelper.printResults(
                 networkDatacenter,
                 vmLists,
                 lastClock,

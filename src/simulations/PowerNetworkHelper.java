@@ -1,14 +1,18 @@
 package simulations;
 
 import network.AgentHost;
-import network.AgentSwitch;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.examples.power.Constants;
 import org.cloudbus.cloudsim.examples.power.random.RandomConstants;
 import org.cloudbus.cloudsim.network.datacenter.*;
+import org.cloudbus.cloudsim.power.models.PowerModelLinear;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
+import power.LinearPowerSwitchModel;
+import power.PowerAgentDatacenter;
+import power.PowerAgentHost;
+import power.PowerAgentSwitch;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -18,7 +22,7 @@ import java.util.List;
  * Class wich Help to build simulations quickly
  * @author Théophane Dumas
  */
-public class NetworkHelper {
+public class PowerNetworkHelper {
 
     /**
      * Create a NetworkDatacenter
@@ -26,7 +30,7 @@ public class NetworkHelper {
      * @param vmAllocationPolicy
      * @return the NetworkDatacenter created
      */
-    public static NetworkDatacenter createDatacenter(
+    public static PowerAgentDatacenter createDatacenter(
             List<AgentHost> hostList,
             VmAllocationPolicy vmAllocationPolicy)  {
         String arch = "x86"; // system architecture
@@ -49,11 +53,11 @@ public class NetworkHelper {
                 costPerStorage,
                 costPerBw);
 
-        NetworkDatacenter datacenter = null;
+        PowerAgentDatacenter datacenter = null;
 
         try {
-            Class datacenterClass = NetworkDatacenter.class;
-            datacenter = (NetworkDatacenter) datacenterClass.getConstructor(
+            Class datacenterClass = PowerAgentDatacenter.class;
+            datacenter = (PowerAgentDatacenter) datacenterClass.getConstructor(
                     String.class,
                     DatacenterCharacteristics.class,
                     VmAllocationPolicy.class,
@@ -80,10 +84,10 @@ public class NetworkHelper {
     public static void buildNetwork(int numhost, NetworkDatacenter dc) {
 
         int length = (int)Math.ceil(numhost/NetworkConstants.EdgeSwitchPort);
-        AgentSwitch agentSwitch[] = new AgentSwitch[length];
+        PowerAgentSwitch agentSwitch[] = new PowerAgentSwitch[length];
 
         for (int i = 0; i < length; i++) {
-            agentSwitch[i] = new AgentSwitch("Edge" + i, NetworkConstants.EDGE_LEVEL, dc, 24);
+            agentSwitch[i] = new PowerAgentSwitch("Edge" + i, NetworkConstants.EDGE_LEVEL, dc, new LinearPowerSwitchModel(100, 200, 24));
         }
         for(int i=0; i<length; i++){
             if(i<length-1) {
@@ -127,7 +131,8 @@ public class NetworkHelper {
      * @param outputFolder
      */
     public static void printResults(NetworkDatacenter datacenter, List<NetworkVm> vmList, double lastClock, String experimentName, boolean outputCsv, String outputFolder) {
-        Log.printLine("Nothing new !");
+        double total = ((PowerAgentDatacenter)datacenter).getTotalUtilisation();
+        System.out.println("total : " + total);
     }
 
     public static List<AgentHost> createHostList(int hostsNumber) {
@@ -140,13 +145,14 @@ public class NetworkHelper {
                 peList.add(new Pe(j, new PeProvisionerSimple(Constants.HOST_MIPS[hostType])));
             }
 
-            hostList.add(new AgentHost(
+            hostList.add(new PowerAgentHost(
                     i,
                     new RamProvisionerSimple(Constants.HOST_RAM[hostType]),
                     new BwProvisionerSimple(Constants.HOST_BW),
                     Constants.HOST_STORAGE,
                     peList,
-                    new VmSchedulerTimeSharedOverSubscription(peList)));
+                    new VmSchedulerTimeSharedOverSubscription(peList),
+                    new PowerModelLinear(300, 10)));
         }
         return hostList;
     }

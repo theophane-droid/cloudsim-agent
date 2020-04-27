@@ -52,12 +52,17 @@ public class PowerAgentHost extends AgentHost implements PowerCalculator {
     public void updateUtilization() {
         utilization =0.;
         for(Vm v: getVmList()){
-            double sum = 0;
-            for (Double m: v.getCurrentAllocatedMips())
-                sum+=m;
-            utilization+=sum;
+            List<Double> allocatedMips = v.getCurrentAllocatedMips();
+            if(allocatedMips!=null) {
+                double sum = 0;
+                for (Double m : allocatedMips)
+                    sum += m;
+                utilization += sum;
+                System.out.println("sum for vm : " + sum);
+            }
         }
         utilization/=getTotalMips();
+        System.out.println("utilization : " + utilization);
     }
 
     @Override
