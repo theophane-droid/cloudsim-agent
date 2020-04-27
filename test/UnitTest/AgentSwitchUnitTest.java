@@ -3,23 +3,18 @@ package UnitTest;
 import network.AgentSwitch;
 import network.Port;
 import network.RawPacket;
-import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Host;
-import org.cloudbus.cloudsim.VmAllocationPolicySimple;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter;
 import org.cloudbus.cloudsim.network.datacenter.Switch;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import simulations.NetworkHelper;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Random;
 
 public class AgentSwitchUnitTest {
     private NetworkDatacenter dc;
@@ -128,13 +123,25 @@ public class AgentSwitchUnitTest {
     public void processPacketUp(){
         List<RawPacket> packets = new ArrayList<>();
         // * RawPacket don't do any traitement so does'nt need to be mocked
-        RawPacket packet = new RawPacket(-1,agentSwitch.getId(), null, null, null);
+        RawPacket packet = new RawPacket(-1, agentSwitch.getId(), null, null, null);
         packets.add(packet);
-        packet.ttl=50;
+        packet.ttl = 50;
         agentSwitch1.uplinkswitches.add(agentSwitch);
         agentSwitch1.processPacketPublic(packets);
 
-        Assert.assertEquals(agentSwitch.getPacketToSort().size(), 0);
-        Assert.assertEquals(agentSwitch.getpacketsRecieved().size(), 0);
+        Assert.assertEquals(0, agentSwitch.getPacketToSort().size());
+        Assert.assertEquals(0, agentSwitch.getpacketsRecieved().size());
+    }
+
+    @Test
+    public void switchDeactivated() {
+        agentSwitch.setIsActive(false);
+        List<RawPacket> packets = new ArrayList<>();
+        RawPacket packet = new RawPacket(-1, agentSwitch.getId(), null, agentSwitch.getClass(), null);
+        packets.add(packet);
+        agentSwitch.processPacketPublic(packets);
+        Assert.assertEquals(0, agentSwitch.getpacketsRecieved().size());
+        Assert.assertEquals(0, agentSwitch.getPacketToSort().size());
+        agentSwitch.setIsActive(true);
     }
 }

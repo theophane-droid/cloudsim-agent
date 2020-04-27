@@ -23,6 +23,7 @@ public class AgentSwitch extends EdgeSwitch implements AgentActionner {
     protected List<RawPacket> packetsRecieved;
     private List<Port> hostConnexions;
     private List<Port> upSwitchConnexions;
+    private boolean isActive = true;
     /**
      * Constructor for AgentSwitch
      * @see EdgeSwitch#EdgeSwitch(String, int, NetworkDatacenter)
@@ -54,17 +55,19 @@ public class AgentSwitch extends EdgeSwitch implements AgentActionner {
      * Transferring or read RawPackets
      * @param packetsToSort
      */
-    protected void processPackets(List<RawPacket> packetsToSort){
-        while(packetsToSort.size()>0){
-            RawPacket rawPacket = packetsToSort.get(0);
-            rawPacket.ttl-=1;
-            if(rawPacket.ttl>0) {
-                if (rawPacket.getClassDest() == getClass() && rawPacket.getIdDest() == getId())
-                    packetsRecieved.add(rawPacket);
-                else
-                    sendRawPaquet(rawPacket);
+    protected void processPackets(List<RawPacket> packetsToSort) {
+        if (isActive) {
+            while (packetsToSort.size() > 0) {
+                RawPacket rawPacket = packetsToSort.get(0);
+                rawPacket.ttl -= 1;
+                if (rawPacket.ttl > 0) {
+                    if (rawPacket.getClassDest() == getClass() && rawPacket.getIdDest() == getId())
+                        packetsRecieved.add(rawPacket);
+                    else
+                        sendRawPaquet(rawPacket);
+                }
+                packetsToSort.remove(0);
             }
-            packetsToSort.remove(0);
         }
     }
     /**
@@ -126,7 +129,16 @@ public class AgentSwitch extends EdgeSwitch implements AgentActionner {
     public void refreshHostConnexions(List<Port> hostConnexions) {
         this.hostConnexions = new ArrayList<>();
     }
+
     public void refreshUpSwitchConnexions(List<RawPacket> packetsToSort) {
         this.upSwitchConnexions = new ArrayList<>();
+    }
+
+    public void setIsActive(boolean b) {
+        this.isActive = b;
+    }
+
+    public boolean isActive() {
+        return isActive;
     }
 }
