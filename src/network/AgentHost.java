@@ -66,6 +66,7 @@ public class AgentHost extends NetworkHost implements AgentActionner {
     private void readRecievedPackets(){
         while(packetsRecieved.size()>0){
             RawPacket rawPacket = packetsRecieved.get(0);
+            System.out.println("recieved : " + rawPacket);
             rawPacket.setRecievedBy(this);
             packetsRecieved.remove(0);
         }

@@ -13,7 +13,6 @@ import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.lang.Math;
 
 /**
  * Class wich Help to build simulations quickly
@@ -84,7 +83,7 @@ public class NetworkHelper {
         AgentSwitch agentSwitch[] = new AgentSwitch[length];
 
         for (int i = 0; i < length; i++) {
-            agentSwitch[i] = new AgentSwitch("Edge" + i, NetworkConstants.EDGE_LEVEL, dc);
+            agentSwitch[i] = new AgentSwitch("Edge" + i, NetworkConstants.EDGE_LEVEL, dc, 24);
         }
         for(int i=0; i<length; i++){
             if(i<length-1) {

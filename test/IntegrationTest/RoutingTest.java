@@ -3,9 +3,13 @@ package IntegrationTest;
 import network.AgentHost;
 import network.AgentSwitch;
 import network.RawPacket;
-import org.cloudbus.cloudsim.*;
+import org.cloudbus.cloudsim.Log;
+import org.cloudbus.cloudsim.VmAllocationPolicySimple;
 import org.cloudbus.cloudsim.core.CloudSim;
-import org.cloudbus.cloudsim.network.datacenter.*;
+import org.cloudbus.cloudsim.network.datacenter.NetDatacenterBroker;
+import org.cloudbus.cloudsim.network.datacenter.NetworkCloudlet;
+import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter;
+import org.cloudbus.cloudsim.network.datacenter.NetworkVm;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -48,7 +52,8 @@ public class RoutingTest {
         RawPacket packet = Mockito.mock(RawPacket.class);
         Mockito.when(packet.getClassDest()).thenReturn(switchDest.getClass());
         Mockito.when(packet.getIdDest()).thenReturn(switchDest.getId());
-        ((AgentHost)networkDatacenter.getHostList().get(0)).sendRawPaquet(packet);
+        Mockito.when(packet.getTTL()).thenReturn(1);
+        ((AgentHost) networkDatacenter.getHostList().get(0)).sendRawPaquet(packet);
 
         CloudSim.terminateSimulation(1000);
         CloudSim.startSimulation();
@@ -66,7 +71,8 @@ public class RoutingTest {
         RawPacket packet = Mockito.mock(RawPacket.class);
         Mockito.when(packet.getClassDest()).thenReturn(hostDest.getClass());
         Mockito.when(packet.getIdDest()).thenReturn(hostDest.getId());
-        ((AgentHost)networkDatacenter.getHostList().get(0)).sendRawPaquet(packet);
+        Mockito.when(packet.getTTL()).thenReturn(1);
+        ((AgentHost) networkDatacenter.getHostList().get(0)).sendRawPaquet(packet);
 
         CloudSim.terminateSimulation(1000);
         CloudSim.startSimulation();

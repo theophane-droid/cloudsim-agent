@@ -27,30 +27,18 @@ public class AgentSwitchUnitTest {
     private Host host2;
     private TestAgentSwitch agentSwitch1;
 
-    /**
-     * This test class will be usefull to access to the protected method processPacket
-     */
-    class TestAgentSwitch extends AgentSwitch{
-        private boolean canCallSendRawPacket;
-        public TestAgentSwitch(String name, int level, NetworkDatacenter dc, boolean canCallSendRawPacket) {
-            super(name, level, dc);
-            this.canCallSendRawPacket = canCallSendRawPacket;
-        }
-        public void processPacketPublic(List<RawPacket> packets){
-            processPackets(packets);
-        }
-        List<RawPacket> getpacketsRecieved(){
-            return packetsRecieved;
-        }
-        List<RawPacket> getPacketToSort(){
-            return packetsToSort;
-        }
-        @Override
-        public void sendRawPaquet(RawPacket rawPacket){
-            if(!canCallSendRawPacket)
-                throw new RuntimeException("It is forbidden in this test to call sendRawPacket");
-            super.sendRawPaquet(rawPacket);
-        }
+    @Test
+    public void processPacketTTLOvertest() {
+        List<RawPacket> packets = new ArrayList<>();
+        // * RawPacket don't do any traitement so does'nt need to be mocked
+        RawPacket packet = new RawPacket(-1, -1, null, null, null);
+        while (packet.getTTL() > 0)
+            packet.decrementTTL();
+        packets.add(packet);
+        agentSwitch.processPacketPublic(packets);
+
+        Assert.assertEquals(agentSwitch.getPacketToSort().size(), 0);
+        Assert.assertEquals(agentSwitch.getpacketsRecieved().size(), 0);
     }
 
     @Before
@@ -95,23 +83,43 @@ public class AgentSwitchUnitTest {
         shouldBeEqualTo.add(switch1);
         Assert.assertArrayEquals(new List[]{shouldBeEqualTo}, new List[]{agentSwitch.uplinkswitches});
     }
-    @Test
-    public void processPacketTTLOvertest(){
-        List<RawPacket> packets = new ArrayList<>();
-        // * RawPacket don't do any traitement so does'nt need to be mocked
-        RawPacket packet = new RawPacket(-1,-1, null, null, null);
-        packet.ttl=0;
-        packets.add(packet);
-        agentSwitch.processPacketPublic(packets);
 
-        Assert.assertEquals(agentSwitch.getPacketToSort().size(), 0);
-        Assert.assertEquals(agentSwitch.getpacketsRecieved().size(), 0);
+    /**
+     * This test class will be usefull to access to the protected method processPacket
+     */
+    class TestAgentSwitch extends AgentSwitch {
+        private boolean canCallSendRawPacket;
+
+        public TestAgentSwitch(String name, int level, NetworkDatacenter dc, boolean canCallSendRawPacket) {
+            super(name, level, dc, 24);
+            this.canCallSendRawPacket = canCallSendRawPacket;
+        }
+
+        public void processPacketPublic(List<RawPacket> packets) {
+            processPackets(packets);
+        }
+
+        List<RawPacket> getpacketsRecieved() {
+            return packetsRecieved;
+        }
+
+        List<RawPacket> getPacketToSort() {
+            return packetsToSort;
+        }
+
+        @Override
+        public void sendRawPaquet(RawPacket rawPacket) {
+            if (!canCallSendRawPacket)
+                throw new RuntimeException("It is forbidden in this test to call sendRawPacket");
+            super.sendRawPaquet(rawPacket);
+        }
     }
+
     @Test
-    public void processPacketDestinatedToSwitch(){
+    public void processPacketDestinatedToSwitch() {
         List<RawPacket> packets = new ArrayList<>();
         // * RawPacket don't do any traitement so does'nt need to be mocked
-        RawPacket packet = new RawPacket(-1,agentSwitch.getId(), null, TestAgentSwitch.class, null);
+        RawPacket packet = new RawPacket(-1, agentSwitch.getId(), null, TestAgentSwitch.class, null);
         packets.add(packet);
         agentSwitch.processPacketPublic(packets);
 
@@ -125,7 +133,6 @@ public class AgentSwitchUnitTest {
         // * RawPacket don't do any traitement so does'nt need to be mocked
         RawPacket packet = new RawPacket(-1, agentSwitch.getId(), null, null, null);
         packets.add(packet);
-        packet.ttl = 50;
         agentSwitch1.uplinkswitches.add(agentSwitch);
         agentSwitch1.processPacketPublic(packets);
 

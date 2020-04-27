@@ -8,14 +8,24 @@ package network;
 public class RawPacket {
     private int idSrc;
     private int idDest;
-    private Class classSrc;;
+    private Class classSrc;
+    ;
     private Class classDest;
     private Object content;
     // * usefull for test
     private Object recievedBy;
     // * time to live
-    public int ttl = 100;
+    private int ttl = 100;
 
+    /**
+     * Default constructor
+     *
+     * @param idSrc
+     * @param idDest
+     * @param classSrc
+     * @param classDest
+     * @param content
+     */
     public RawPacket(int idSrc, int idDest, Class classSrc, Class classDest, Object content) {
         this.idSrc = idSrc;
         this.idDest = idDest;
@@ -50,5 +60,13 @@ public class RawPacket {
 
     public Object getRecievedBy() {
         return recievedBy;
+    }
+
+    public int getTTL() {
+        return ttl;
+    }
+
+    public void decrementTTL() {
+        ttl -= 1;
     }
 }

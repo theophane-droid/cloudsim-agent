@@ -19,21 +19,25 @@ import java.util.List;
  * @author Théophane Dumas
  */
 public class AgentSwitch extends EdgeSwitch implements AgentActionner {
+    private final int nbPorts;
     protected List<RawPacket> packetsToSort;
     protected List<RawPacket> packetsRecieved;
     private List<Port> hostConnexions;
     private List<Port> upSwitchConnexions;
     private boolean isActive = true;
+
     /**
      * Constructor for AgentSwitch
+     *
      * @see EdgeSwitch#EdgeSwitch(String, int, NetworkDatacenter)
      */
-    public AgentSwitch(String name, int level, NetworkDatacenter dc) {
+    public AgentSwitch(String name, int level, NetworkDatacenter dc, int nbPorts) {
         super(name, level, dc);
         packetsToSort = new ArrayList<>();
         packetsRecieved = new ArrayList<>();
         hostConnexions = new ArrayList<>();
         upSwitchConnexions = new ArrayList<>();
+        this.nbPorts = nbPorts;
     }
 
     /**
@@ -59,12 +63,13 @@ public class AgentSwitch extends EdgeSwitch implements AgentActionner {
         if (isActive) {
             while (packetsToSort.size() > 0) {
                 RawPacket rawPacket = packetsToSort.get(0);
-                rawPacket.ttl -= 1;
-                if (rawPacket.ttl > 0) {
+                rawPacket.decrementTTL();
+                if (rawPacket.getTTL() > 0) {
                     if (rawPacket.getClassDest() == getClass() && rawPacket.getIdDest() == getId())
                         packetsRecieved.add(rawPacket);
                     else
                         sendRawPaquet(rawPacket);
+
                 }
                 packetsToSort.remove(0);
             }
@@ -140,5 +145,9 @@ public class AgentSwitch extends EdgeSwitch implements AgentActionner {
 
     public boolean isActive() {
         return isActive;
+    }
+
+    public int getNbPorts() {
+        return nbPorts;
     }
 }
