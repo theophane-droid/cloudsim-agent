@@ -56,7 +56,7 @@ public class PowerAgentSwitchUnitTest {
         shouldBeEqualTo.add(3.);
         shouldBeEqualTo.add(-1.);
 
-        Assert.assertEquals(shouldBeEqualTo, powerAgentSwitch.getPowerUtilisation());
+        Assert.assertEquals(shouldBeEqualTo, powerAgentSwitch.getPowerUtilisationHistory());
     }
 
     @Test

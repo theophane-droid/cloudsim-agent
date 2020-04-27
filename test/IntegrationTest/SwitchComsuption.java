@@ -44,7 +44,7 @@ public class SwitchComsuption {
         PowerAgentSwitch powerAgentSwitch = new PowerAgentSwitch("switch", -1, networkDatacenter, linearModel);
         // * with 0 up ports
         powerAgentSwitch.updatePowerConsumption();
-        Assert.assertTrue(powerAgentSwitch.getPowerUtilisation().get(0) == 100);
+        Assert.assertTrue(powerAgentSwitch.getPowerUtilisationHistory().get(0) == 100);
 
         // * with 12 up ports
         for (int i = 0; i < 12; i++) {
@@ -55,7 +55,7 @@ public class SwitchComsuption {
         powerAgentSwitch.updateConnexions();
         powerAgentSwitch.updatePowerConsumption();
         System.out.println();
-        Assert.assertTrue(powerAgentSwitch.getPowerUtilisation().get(1) == 150);
+        Assert.assertTrue(powerAgentSwitch.getPowerUtilisationHistory().get(1) == 150);
 
         // * with 24 up ports
         for (int i = 12; i < 24; i++) {
@@ -66,6 +66,6 @@ public class SwitchComsuption {
         powerAgentSwitch.updateConnexions();
         powerAgentSwitch.updatePowerConsumption();
         System.out.println();
-        Assert.assertTrue(powerAgentSwitch.getPowerUtilisation().get(2) == 200);
+        Assert.assertTrue(powerAgentSwitch.getPowerUtilisationHistory().get(2) == 200);
     }
 }

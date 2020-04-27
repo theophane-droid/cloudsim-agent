@@ -8,7 +8,7 @@ import java.util.List;
  * @author Théophane Dumas
  */
 public interface PowerCalculator {
-    public List<Double> getPowerUtilisation();
+    public List<Double> getPowerUtilisationHistory();
 
     public double getPowerSum();
 

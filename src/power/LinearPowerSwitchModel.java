@@ -18,6 +18,9 @@ public class LinearPowerSwitchModel extends PowerSwitchModel {
 
     @Override
     public double getPowerConsuption(PowerAgentSwitch powerAgentSwitch) {
-        return min + (max - min) / nbPorts * (powerAgentSwitch.uplinkswitches.size() + powerAgentSwitch.hostlist.size());
+        double result=0;
+        if(powerAgentSwitch.isActive())
+            result = min + (max - min) / nbPorts * (powerAgentSwitch.uplinkswitches.size() + powerAgentSwitch.hostlist.size());
+        return result;
     }
 }

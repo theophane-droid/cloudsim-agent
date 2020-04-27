@@ -31,7 +31,7 @@ public class PowerAgentSwitch extends AgentSwitch implements PowerCalculator {
     }
 
     @Override
-    public List<Double> getPowerUtilisation() {
+    public List<Double> getPowerUtilisationHistory() {
         return powerUtilisationList;
     }
 
