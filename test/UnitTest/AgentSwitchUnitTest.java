@@ -51,7 +51,7 @@ public class AgentSwitchUnitTest {
         Mockito.when(port1.isOpen()).thenReturn(true);
         port2 = Mockito.mock(Port.class);
         Mockito.when(port2.isOpen()).thenReturn(false);
-        agentSwitch.getUpSwitchConnexions().add(new Port());
+        agentSwitch.getUpSwitchConnexions().add(port2);
         host1 = Mockito.mock(Host.class);
         host2 = Mockito.mock(Host.class);
         switch1 = Mockito.mock(Switch.class);

@@ -9,6 +9,11 @@ public class Port {
     private boolean isOpen;
     private Object reliedObject;
 
+    public Port(boolean isOpen, Object reliedObject) {
+        this.isOpen = isOpen;
+        this.reliedObject = reliedObject;
+    }
+
     public boolean isOpen() {
         return isOpen;
     }
