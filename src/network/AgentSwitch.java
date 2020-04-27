@@ -19,8 +19,8 @@ import java.util.List;
  * @author Théophane Dumas
  */
 public class AgentSwitch extends EdgeSwitch implements AgentActionner {
-    private List<RawPacket> packetsToSort;
-    private List<RawPacket> packetsRecieved;
+    protected List<RawPacket> packetsToSort;
+    protected List<RawPacket> packetsRecieved;
     private List<Port> hostConnexions;
     private List<Port> upSwitchConnexions;
     /**
@@ -43,7 +43,7 @@ public class AgentSwitch extends EdgeSwitch implements AgentActionner {
     public void processEvent(SimEvent ev) {
         if(ev.getData() instanceof RawPacket) {
             packetsToSort.add((RawPacket) ev.getData());
-            processPackets();
+            processPackets(packetsToSort);
             readRecievedPackets();
         }
         else
@@ -52,15 +52,17 @@ public class AgentSwitch extends EdgeSwitch implements AgentActionner {
 
     /**
      * Transferring or read RawPackets
+     * @param packetsToSort
      */
-    private void processPackets(){
+    protected void processPackets(List<RawPacket> packetsToSort){
         while(packetsToSort.size()>0){
             RawPacket rawPacket = packetsToSort.get(0);
-            if(rawPacket.getClassDest()==getClass() && rawPacket.getIdDest()==getId()){
-                packetsRecieved.add(rawPacket);
-            }
-            else{
-                sendRawPaquet(rawPacket);
+            rawPacket.ttl-=1;
+            if(rawPacket.ttl>0) {
+                if (rawPacket.getClassDest() == getClass() && rawPacket.getIdDest() == getId())
+                    packetsRecieved.add(rawPacket);
+                else
+                    sendRawPaquet(rawPacket);
             }
             packetsToSort.remove(0);
         }
@@ -100,16 +102,16 @@ public class AgentSwitch extends EdgeSwitch implements AgentActionner {
     /**
      * method to reset connexions based on what port is open. This method must be called after any changement on hostConnexions or upSwitchConnexion
      */
-    private void updateConnexions(){
+    public void updateConnexions(){
         uplinkswitches = new ArrayList<>();
         hostlist = new HashMap<>();
         for (Port p: hostConnexions) {
-            if (p.isOpen)
-                hostlist.put(((Host) p.reliedObject).getId(), (NetworkHost) p.reliedObject);
+            if (p.isOpen())
+                hostlist.put(((Host) p.getReliedObject()).getId(), (NetworkHost) p.getReliedObject());
         }
         for(Port p: upSwitchConnexions){
-            if(p.isOpen)
-                uplinkswitches.add((Switch) p.reliedObject);
+            if(p.isOpen())
+                uplinkswitches.add((Switch) p.getReliedObject());
         }
     }
 
@@ -119,5 +121,12 @@ public class AgentSwitch extends EdgeSwitch implements AgentActionner {
 
     public List<Port> getUpSwitchConnexions() {
         return upSwitchConnexions;
+    }
+
+    public void refreshHostConnexions(List<Port> hostConnexions) {
+        this.hostConnexions = new ArrayList<>();
+    }
+    public void refreshUpSwitchConnexions(List<RawPacket> packetsToSort) {
+        this.upSwitchConnexions = new ArrayList<>();
     }
 }

@@ -13,6 +13,8 @@ public class RawPacket {
     private Object content;
     // * usefull for test
     private Object recievedBy;
+    // * time to live
+    public int ttl = 100;
 
     public RawPacket(int idSrc, int idDest, Class classSrc, Class classDest, Object content) {
         this.idSrc = idSrc;

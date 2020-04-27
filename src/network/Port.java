@@ -5,6 +5,14 @@ package network;
  * @author Théophane Dumas
  */
 public class Port {
-    public boolean isOpen;
-    public Object reliedObject;
+    private boolean isOpen;
+    private Object reliedObject;
+
+    public boolean isOpen() {
+        return isOpen;
+    }
+
+    public Object getReliedObject() {
+        return reliedObject;
+    }
 }
