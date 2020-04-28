@@ -92,7 +92,7 @@ public class AgentSwitch extends EdgeSwitch implements AgentActionner {
      */
     public void sendRawPaquet(RawPacket rawPacket){
         boolean hasBeenSended = false;
-        if(rawPacket.getClassDest()== AgentHost.class) {
+        if(rawPacket.getClassDest()!= null && AgentHost.class.isAssignableFrom(rawPacket.getClassDest())) {
             for (int i : hostlist.keySet()) {
                 if (rawPacket.getIdDest() == i){
                     if(!(hostlist.get(i) instanceof AgentHost)){
