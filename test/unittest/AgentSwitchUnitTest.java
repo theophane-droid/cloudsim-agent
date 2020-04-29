@@ -1,10 +1,6 @@
-/*
 package unittest;
 
-import network.AgentHost;
-import network.AgentSwitch;
-import network.Port;
-import network.RawPacket;
+import network.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter;
 import org.cloudbus.cloudsim.network.datacenter.Switch;
@@ -22,22 +18,20 @@ public class AgentSwitchUnitTest {
     private TestAgentSwitch agentSwitch;
     private Port port1;
     private Port port2;
-    private Switch switch1;
-    private Switch switch2;
+    private AgentSwitch switch1;
+    private AgentSwitch switch2;
     private AgentHost host1;
     private AgentHost host2;
     private TestAgentSwitch agentSwitch1;
 
-    */
 /**
      * This test class will be usefull to access to the protected method processPacket
-     *//*
-
+     */
     class TestAgentSwitch extends AgentSwitch {
         private boolean canCallSendRawPacket;
 
-        public TestAgentSwitch(String name, int level, NetworkDatacenter dc, boolean canCallSendRawPacket) {
-            super(name, level, dc, 24);
+        public TestAgentSwitch(String name, NetworkDatacenter dc, boolean canCallSendRawPacket) {
+            super(dc, 24, name);
             this.canCallSendRawPacket = canCallSendRawPacket;
         }
 
@@ -64,8 +58,8 @@ public class AgentSwitchUnitTest {
     public void setupTest() {
         CloudSim.init(0, Calendar.getInstance(), false);
         dc = Mockito.mock(NetworkDatacenter.class);
-        agentSwitch = new TestAgentSwitch("agent", 0, dc, false);
-        agentSwitch1 = new TestAgentSwitch("agent", 0, dc, true);
+        agentSwitch = new TestAgentSwitch("agent", dc, false);
+        agentSwitch1 = new TestAgentSwitch("agent", dc, true);
         port1 = Mockito.mock(Port.class);
         Mockito.when(port1.isOpen()).thenReturn(true);
         port2 = Mockito.mock(Port.class);
@@ -75,8 +69,8 @@ public class AgentSwitchUnitTest {
         host2 = Mockito.mock(AgentHost.class);
         Mockito.when(host1.getId()).thenReturn(0);
         Mockito.when(host1.getId()).thenReturn(1);
-        switch1 = Mockito.mock(Switch.class);
-        switch2 = Mockito.mock(Switch.class);
+        switch1 = Mockito.mock(AgentSwitch.class);
+        switch2 = Mockito.mock(AgentSwitch.class);
     }
     @Test
     public void processPacketTTLOvertest() {
@@ -94,6 +88,7 @@ public class AgentSwitchUnitTest {
 
     @Test
     public void testUpdateConnexionsUpLinkFalse() throws Exception {
+        System.out.println("sw 1 : " + switch1 + " sw 2 : " + switch2);
         agentSwitch.getUpSwitchConnexions().add(port1);
         agentSwitch.getUpSwitchConnexions().add(port2);
         Mockito.when(port1.getReliedObject()).thenReturn(switch1);
@@ -101,12 +96,12 @@ public class AgentSwitchUnitTest {
         agentSwitch.updateConnexions();
 
         // * the only open port is the first one, so uplinkswitches should contain only host1
-        List<Switch> shouldBeEqualTo = new ArrayList();
+        List<AgentSwitch> shouldBeEqualTo = new ArrayList();
         shouldBeEqualTo.add(switch2);
         Assert.assertNotEquals(new List[]{shouldBeEqualTo}, new List[]{agentSwitch.uplinkswitches});
     }
     @Test
-    public void testUpdateConnexionsUpLinkTrue() throws Exception {
+    public void testUpdateConnexionsUpLinkTrue() {
         agentSwitch.getUpSwitchConnexions().add(port1);
         agentSwitch.getUpSwitchConnexions().add(port2);
         Mockito.when(port1.getReliedObject()).thenReturn(switch1);
@@ -114,7 +109,7 @@ public class AgentSwitchUnitTest {
         agentSwitch.updateConnexions();
 
         // * the only open port is the first one, so uplinkswitches should contain only host1
-        List<Switch> shouldBeEqualTo = new ArrayList();
+        List<AgentSwitch> shouldBeEqualTo = new ArrayList();
         shouldBeEqualTo.add(switch1);
         Assert.assertArrayEquals(new List[]{shouldBeEqualTo}, new List[]{agentSwitch.uplinkswitches});
     }
@@ -174,4 +169,4 @@ public class AgentSwitchUnitTest {
         Mockito.verify(mockedToSortList, Mockito.times(1)).add(packet);
 
     }
-}*/
+}

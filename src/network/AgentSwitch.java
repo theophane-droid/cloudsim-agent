@@ -26,8 +26,8 @@ public class AgentSwitch extends SimEntity implements AgentActionner {
     private List<Port> hostConnexions;
     private List<Port> upSwitchConnexions;
     private boolean isActive = true;
-    public Map<Integer, AgentHost> hostlist;
-    public List<AgentSwitch> uplinkswitches;
+    public Map<Integer, AgentHost> hostlist =  new HashMap<>();
+    public List<AgentSwitch> uplinkswitches = new ArrayList<>();
     private Datacenter dc;
     private double switching_delay;
 
