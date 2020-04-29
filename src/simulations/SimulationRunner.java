@@ -1,3 +1,4 @@
+/*
 package simulations;
 
 import network.AgentHost;
@@ -12,10 +13,12 @@ import org.cloudbus.cloudsim.network.datacenter.NetworkVm;
 
 import java.util.List;
 
+*/
 /**
  * Runner wich allows to run Network simulations
  * @author Théophane Dumas
- */
+ *//*
+
 public abstract class SimulationRunner {
     protected List<AgentHost> hostList;
     protected List<NetworkCloudlet> coudletList;
@@ -33,15 +36,19 @@ public abstract class SimulationRunner {
         this.outputFolder=outputFolder;
     }
 
-    /**
+    */
+/**
      * Init the simulation
      * @throws Exception
-     */
+     *//*
+
     public abstract void init() throws Exception;
 
-    /**
+    */
+/**
      * Start the simulation
-     */
+     *//*
+
     public void start(){
         broker.submitVmList(vmLists);
         broker.submitCloudletList(coudletList);
@@ -65,3 +72,4 @@ public abstract class SimulationRunner {
                 );
     }
 }
+*/

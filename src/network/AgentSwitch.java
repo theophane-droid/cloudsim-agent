@@ -1,43 +1,56 @@
 package network;
 
+import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Host;
+import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
+import org.cloudbus.cloudsim.core.SimEntity;
 import org.cloudbus.cloudsim.core.SimEvent;
-import org.cloudbus.cloudsim.network.datacenter.EdgeSwitch;
-import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter;
-import org.cloudbus.cloudsim.network.datacenter.NetworkHost;
-import org.cloudbus.cloudsim.network.datacenter.Switch;
+import org.cloudbus.cloudsim.network.datacenter.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A class wich allow to recieved RawPaquet, and to switch off/on ports
  * Warning : don't use hostlist and uplinkswitch
  * @author Théophane Dumas
  */
-public class AgentSwitch extends EdgeSwitch implements AgentActionner {
+public class AgentSwitch extends SimEntity implements AgentActionner {
     private final int nbPorts;
     protected List<RawPacket> packetsToSort;
     protected List<RawPacket> packetsRecieved;
     private List<Port> hostConnexions;
     private List<Port> upSwitchConnexions;
     private boolean isActive = true;
+    public Map<Integer, AgentHost> hostlist;
+    public List<AgentSwitch> uplinkswitches;
+    private Datacenter dc;
+    private double switching_delay;
 
     /**
      * Constructor for AgentSwitch
      *
      * @see EdgeSwitch#EdgeSwitch(String, int, NetworkDatacenter)
      */
-    public AgentSwitch(String name, int level, NetworkDatacenter dc, int nbPorts) {
-        super(name, level, dc);
+    public AgentSwitch(Datacenter dc, int nbPorts, String name) {
+        super(name);
         packetsToSort = new ArrayList<>();
         packetsRecieved = new ArrayList<>();
         hostConnexions = new ArrayList<>();
         upSwitchConnexions = new ArrayList<>();
         this.nbPorts = nbPorts;
+        this.dc=dc;
+        this.switching_delay= NetworkConstants.SwitchingDelayEdge;
+    }
+
+    @Override
+    public void startEntity() {
+        Log.printLine(this.getName() + " is starting...");
+        this.schedule(this.getId(), 0.0D, 15);
     }
 
     /**
@@ -51,8 +64,11 @@ public class AgentSwitch extends EdgeSwitch implements AgentActionner {
             processPackets(packetsToSort);
             readRecievedPackets();
         }
-        else
-            super.processEvent(ev);
+    }
+
+    @Override
+    public void shutdownEntity() {
+
     }
 
     /**
@@ -105,6 +121,7 @@ public class AgentSwitch extends EdgeSwitch implements AgentActionner {
         }
         if(!hasBeenSended)
             CloudSim.send(dc.getId(), uplinkswitches.get(0).getId(), switching_delay, CloudSimTags.Network_Event_UP, rawPacket);
+        System.out.println("uplinkswitch : " + this.getId() + " => " + uplinkswitches);
     }
 
     /**
@@ -115,11 +132,11 @@ public class AgentSwitch extends EdgeSwitch implements AgentActionner {
         hostlist = new HashMap<>();
         for (Port p: hostConnexions) {
             if (p.isOpen())
-                hostlist.put(((Host) p.getReliedObject()).getId(), (NetworkHost) p.getReliedObject());
+                hostlist.put(((Host) p.getReliedObject()).getId(), (AgentHost) p.getReliedObject());
         }
         for(Port p: upSwitchConnexions){
             if(p.isOpen())
-                uplinkswitches.add((Switch) p.getReliedObject());
+                uplinkswitches.add((AgentSwitch) p.getReliedObject());
         }
     }
 

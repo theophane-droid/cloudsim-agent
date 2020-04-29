@@ -1,11 +1,16 @@
 package simulations;
 
+import network.AgentDatacenter;
 import network.AgentHost;
 import network.AgentSwitch;
+import network.Port;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.examples.power.Constants;
 import org.cloudbus.cloudsim.examples.power.random.RandomConstants;
 import org.cloudbus.cloudsim.network.datacenter.*;
+import org.cloudbus.cloudsim.power.PowerHost;
+import org.cloudbus.cloudsim.power.PowerHostUtilizationHistory;
+import org.cloudbus.cloudsim.power.PowerVm;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
@@ -77,42 +82,40 @@ public class NetworkHelper {
      * @param numhost
      * @param dc
      */
-    public static void buildNetwork(int numhost, NetworkDatacenter dc) {
+    public static void buildNetwork(int numhost, AgentDatacenter dc) {
 
         int length = (int)Math.ceil(numhost/NetworkConstants.EdgeSwitchPort);
         AgentSwitch agentSwitch[] = new AgentSwitch[length];
 
         for (int i = 0; i < length; i++) {
-            agentSwitch[i] = new AgentSwitch("Edge" + i, NetworkConstants.EDGE_LEVEL, dc, 24);
+            agentSwitch[i] = new AgentSwitch(dc,24, "Edge_"+i);
+            dc.getAgentSwitchs().put(agentSwitch[i].getId(), agentSwitch[i]);
         }
         for(int i=0; i<length; i++){
             if(i<length-1) {
-                System.out.println("1");
-                agentSwitch[i].uplinkswitches = new ArrayList<>();
-                agentSwitch[i].uplinkswitches.add(agentSwitch[i + 1]);
+//                System.out.println("1");
+  //              agentSwitch[i].uplinkswitches = new ArrayList<>();
+    //            agentSwitch[i].uplinkswitches.add(agentSwitch[i + 1]);
+                agentSwitch[i].getUpSwitchConnexions().add(new Port(true, agentSwitch[i+1]));
             }
             else{
-                System.out.println("2");
+/*                System.out.println("2");
                 agentSwitch[i].uplinkswitches = new ArrayList<>();
-                agentSwitch[i].uplinkswitches.add(agentSwitch[0]);
+                agentSwitch[i].uplinkswitches.add(agentSwitch[0]);*/
+                agentSwitch[i].getUpSwitchConnexions().add(new Port(true, agentSwitch[0]));
             }
             System.out.println("uplink : " + i + " => " + agentSwitch[i].uplinkswitches);
-            dc.Switchlist.put(agentSwitch[i].getId(), agentSwitch[i]);
+            dc.getAgentSwitchs().put(agentSwitch[i].getId(), agentSwitch[i]);;
         }
         for (Host hs : dc.getHostList()) {
-            NetworkHost hs1 = (NetworkHost) hs;
+            AgentHost hs1 = (AgentHost) hs;
             hs1.bandwidth = NetworkConstants.BandWidthEdgeHost;
             int switchnum = (int) (hs.getId() / NetworkConstants.EdgeSwitchPort);
-            agentSwitch[switchnum].hostlist.put(hs.getId(), hs1);
-            dc.HostToSwitchid.put(hs.getId(), agentSwitch[switchnum].getId());
-            hs1.sw = agentSwitch[switchnum];
-            List<NetworkHost> hslist = hs1.sw.fintimelistHost.get(0D);
-            if (hslist == null) {
-                hslist = new ArrayList<NetworkHost>();
-                hs1.sw.fintimelistHost.put(0D, hslist);
-            }
-            hslist.add(hs1);
 
+        //    agentSwitch[switchnum].hostlist.put(hs.getId(), hs1);
+            hs1.setSw(agentSwitch[switchnum]);
+            agentSwitch[switchnum].getHostConnexions().add(new Port(true, hs1));
+            agentSwitch[switchnum].updateConnexions();
         }
 
     }
@@ -131,50 +134,51 @@ public class NetworkHelper {
     }
 
     public static List<AgentHost> createHostList(int hostsNumber) {
-        List<AgentHost> hostList = new ArrayList<>();
-        for (int i = 0; i < hostsNumber; i++) {
-            int hostType = i % Constants.HOST_TYPES;
+        ArrayList<AgentHost> hostList = new ArrayList();
 
-            List<Pe> peList = new ArrayList<Pe>();
-            for (int j = 0; j < Constants.HOST_PES[hostType]; j++) {
-                peList.add(new Pe(j, new PeProvisionerSimple(Constants.HOST_MIPS[hostType])));
+        for(int i = 0; i < hostsNumber; ++i) {
+            int hostType = i % 2;
+            List<Pe> peList = new ArrayList();
+
+            for(int j = 0; j < Constants.HOST_PES[hostType]; ++j) {
+                peList.add(new Pe(j, new PeProvisionerSimple((double)Constants.HOST_MIPS[hostType])));
             }
 
-            hostList.add(new AgentHost(
-                    i,
-                    new RamProvisionerSimple(Constants.HOST_RAM[hostType]),
-                    new BwProvisionerSimple(Constants.HOST_BW),
-                    Constants.HOST_STORAGE,
-                    peList,
-                    new VmSchedulerTimeSharedOverSubscription(peList)));
+            hostList.add(new AgentHost(i, new RamProvisionerSimple(Constants.HOST_RAM[hostType]), new BwProvisionerSimple(1000000L), 1000000L, peList, new VmSchedulerTimeSharedOverSubscription(peList), Constants.HOST_POWER[hostType]));
         }
+
         return hostList;
     }
 
     /**
-     * Create NetworkVM list
-     * @param brokerId
-     * @param vmsNumber
+     *
+     * @param name
+     * @param hostList
+     * @param vmAllocationPolicy
      * @return
+     * @throws Exception
      */
-    public static List<NetworkVm> createVmList(int brokerId, int vmsNumber){
-        List<NetworkVm> vms = new ArrayList<>();
-        for (int i = 0; i < vmsNumber; i++) {
-            int vmType = i / (int) Math.ceil((double) vmsNumber / Constants.VM_TYPES);
-            vms.add(new NetworkVm(
-                    i,
-                    brokerId,
-                    Constants.VM_MIPS[vmType],
-                    Constants.VM_PES[vmType],
-                    Constants.VM_RAM[vmType],
-                    Constants.VM_BW,
-                    Constants.VM_SIZE,
-                    "Xen",
-                    new NetworkCloudletSpaceSharedScheduler()));
-        }
-        return vms;
-    }
+    public static AgentDatacenter createDatacenter(String name,  List<AgentHost> hostList, VmAllocationPolicy vmAllocationPolicy) throws Exception {
+        String arch = "x86";
+        String os = "Linux";
+        String vmm = "Xen";
+        double time_zone = 10.0D;
+        double cost = 3.0D;
+        double costPerMem = 0.05D;
+        double costPerStorage = 0.001D;
+        double costPerBw = 0.0D;
+        DatacenterCharacteristics characteristics = new DatacenterCharacteristics(arch, os, vmm, hostList, time_zone, cost, costPerMem, costPerStorage, costPerBw);
+        AgentDatacenter datacenter = null;
 
+        try {
+            datacenter = AgentDatacenter.class.getConstructor(String.class, DatacenterCharacteristics.class, VmAllocationPolicy.class, List.class, Double.TYPE).newInstance(name, characteristics, vmAllocationPolicy, new LinkedList(), 300.0D);
+        } catch (Exception var20) {
+            var20.printStackTrace();
+            System.exit(0);
+        }
+
+        return datacenter;
+    }
     /**
      * Create NetworkCloudlet list with simple tasks
      * @param brokerId

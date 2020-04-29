@@ -1,11 +1,8 @@
 import org.cloudbus.cloudsim.Log;
-import simulations.SimulationRunner;
-import simulations.SimulationRunner1;
-import simulations.SimulationRunner2;
 
 public class Main {
     public static void main(String[] args) {
-        boolean enableOutput = true;
+        /*boolean enableOutput = true;
         boolean outputToFile = false;
         String outputFolder = "output";
         String workload = "20110303"; // PlanetLab workload
@@ -21,6 +18,6 @@ public class Main {
         } catch (Exception e) {
             Log.printLine("An exception occurs during the simulation !");
             e.printStackTrace();
-        }
+        }*/
     }
 }

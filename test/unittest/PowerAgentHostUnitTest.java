@@ -1,11 +1,11 @@
-package UnitTest;
+/*
+package unittest;
 
 import org.cloudbus.cloudsim.Pe;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmSchedulerSpaceShared;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.power.models.PowerModel;
-import org.cloudbus.cloudsim.power.models.PowerModelLinear;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
@@ -23,9 +23,11 @@ public class PowerAgentHostUnitTest {
     private PowerAgentHost powerAgentHost;
     private PowerModel model;
 
-    /**
+    */
+/**
      * This class has been created to be a tool in the following test
-     */
+     *//*
+
     class PowerTestModel implements PowerModel {
 
         @Override
@@ -81,4 +83,4 @@ public class PowerAgentHostUnitTest {
 
         Assert.assertEquals(expected, powerAgentHost.getPowerUtilisationHistory());
     }
-}
+}*/

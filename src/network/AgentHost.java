@@ -5,7 +5,9 @@ import org.cloudbus.cloudsim.Pe;
 import org.cloudbus.cloudsim.VmScheduler;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
-import org.cloudbus.cloudsim.network.datacenter.NetworkHost;
+import org.cloudbus.cloudsim.power.PowerHost;
+import org.cloudbus.cloudsim.power.PowerHostUtilizationHistory;
+import org.cloudbus.cloudsim.power.models.PowerModel;
 import org.cloudbus.cloudsim.provisioners.BwProvisioner;
 import org.cloudbus.cloudsim.provisioners.RamProvisioner;
 
@@ -16,12 +18,14 @@ import java.util.List;
  * A class wich allows RawPackets to be transferred to AgentSwitch.
  * @author Théophane DUmas
  */
-public class AgentHost extends NetworkHost implements AgentActionner {
+public class AgentHost extends PowerHostUtilizationHistory implements AgentActionner {
     private List<RawPacket> packetsToSort;
     private List<RawPacket> packetsRecieved;
+    private AgentSwitch sw;
+    public double bandwidth;
 
-    public AgentHost(int id, RamProvisioner ramProvisioner, BwProvisioner bwProvisioner, long storage, List<? extends Pe> peList, VmScheduler vmScheduler) {
-        super(id, ramProvisioner, bwProvisioner, storage, peList, vmScheduler);
+    public AgentHost(int id, RamProvisioner ramProvisioner, BwProvisioner bwProvisioner, long storage, List<? extends Pe> peList, VmScheduler vmScheduler, PowerModel powerModel) {
+        super(id, ramProvisioner, bwProvisioner, storage, peList, vmScheduler, powerModel);
         packetsToSort = new ArrayList<>();
         packetsRecieved = new ArrayList<>();
     }
@@ -71,11 +75,18 @@ public class AgentHost extends NetworkHost implements AgentActionner {
             packetsRecieved.remove(0);
         }
     }
-
     /**
      * @return packetsToSort list
      */
     public List<RawPacket> getPacketsToSort() {
         return packetsToSort;
+    }
+
+    public AgentSwitch getSw() {
+        return sw;
+    }
+
+    public void setSw(AgentSwitch sw) {
+        this.sw = sw;
     }
 }

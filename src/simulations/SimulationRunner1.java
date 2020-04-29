@@ -2,7 +2,6 @@ package simulations;
 
 import org.cloudbus.cloudsim.VmAllocationPolicySimple;
 import org.cloudbus.cloudsim.core.CloudSim;
-import simulations.SimulationRunner;
 
 import java.util.Calendar;
 
@@ -10,7 +9,7 @@ import java.util.Calendar;
  * Class wich run the first simulation process based on planetlab cloudlets
  * @author Théophane Dumas
  */
-public class SimulationRunner1 extends SimulationRunner {
+/*public class SimulationRunner1 extends SimulationRunner {
 
     public SimulationRunner1(String name,String workload, String inputFolder, String outputFolder) {
         super(name, workload, inputFolder, outputFolder);
@@ -27,4 +26,4 @@ public class SimulationRunner1 extends SimulationRunner {
         networkDatacenter = NetworkHelper.createDatacenter(hostList, new VmAllocationPolicySimple(hostList));
         NetworkHelper.buildNetwork(10, networkDatacenter);
     }
-}
+}*/

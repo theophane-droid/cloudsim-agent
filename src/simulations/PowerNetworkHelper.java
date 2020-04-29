@@ -5,14 +5,11 @@ import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.examples.power.Constants;
 import org.cloudbus.cloudsim.examples.power.random.RandomConstants;
 import org.cloudbus.cloudsim.network.datacenter.*;
+import org.cloudbus.cloudsim.power.PowerDatacenter;
 import org.cloudbus.cloudsim.power.models.PowerModelLinear;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
-import power.LinearPowerSwitchModel;
-import power.PowerAgentDatacenter;
-import power.PowerAgentHost;
-import power.PowerAgentSwitch;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -29,7 +26,7 @@ public class PowerNetworkHelper {
      * @param hostList the datacenters host list
      * @param vmAllocationPolicy
      * @return the NetworkDatacenter created
-     */
+     *//*
     public static PowerAgentDatacenter createDatacenter(
             List<AgentHost> hostList,
             VmAllocationPolicy vmAllocationPolicy)  {
@@ -76,11 +73,11 @@ public class PowerNetworkHelper {
         return datacenter;
     }
 
-    /**
+    *//**
      * Add switches to the datacenter
      * @param numhost
      * @param dc
-     */
+     *//*
     public static void buildNetwork(int numhost, NetworkDatacenter dc) {
 
         int length = (int)Math.ceil(numhost/NetworkConstants.EdgeSwitchPort);
@@ -121,7 +118,7 @@ public class PowerNetworkHelper {
 
     }
 
-    /**
+    *//**
      * Print the results of the simulations
      * @param datacenter datacenter to print
      * @param vmList
@@ -129,10 +126,10 @@ public class PowerNetworkHelper {
      * @param experimentName
      * @param outputCsv
      * @param outputFolder
-     */
-    public static void printResults(NetworkDatacenter datacenter, List<NetworkVm> vmList, double lastClock, String experimentName, boolean outputCsv, String outputFolder) {
-        double total = ((PowerAgentDatacenter)datacenter).getTotalUtilisation();
-        System.out.println("total : " + total);
+     *//*
+    public static void printResults(PowerDatacenter datacenter, List<NetworkVm> vmList, double lastClock, String experimentName, boolean outputCsv, String outputFolder) {
+        *//*double total = ((PowerAgentDatacenter)datacenter).getTotalUtilisation();
+        System.out.println("total : " + total);*//*
     }
 
     public static List<AgentHost> createHostList(int hostsNumber) {
@@ -157,12 +154,12 @@ public class PowerNetworkHelper {
         return hostList;
     }
 
-    /**
+    *//**
      * Create NetworkVM list
      * @param brokerId
      * @param vmsNumber
      * @return
-     */
+     *//*
     public static List<NetworkVm> createVmList(int brokerId, int vmsNumber){
         List<NetworkVm> vms = new ArrayList<>();
         for (int i = 0; i < vmsNumber; i++) {
@@ -181,12 +178,12 @@ public class PowerNetworkHelper {
         return vms;
     }
 
-    /**
+    *//**
      * Create NetworkCloudlet list with simple tasks
      * @param brokerId
      * @param cloudletsNumber
      * @return
-     */
+     *//*
     public static List<NetworkCloudlet> createCloudletList(int brokerId, int cloudletsNumber) {
         List<NetworkCloudlet> list = new ArrayList<>();
 
@@ -230,5 +227,5 @@ public class PowerNetworkHelper {
     }
     public static NetDatacenterBroker createBroker() throws Exception {
         return new NetDatacenterBroker("broker");
-    }
+    }*/
 }

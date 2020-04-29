@@ -1,4 +1,5 @@
-package UnitTest;
+/*
+package unittest;
 
 import network.AgentHost;
 import org.cloudbus.cloudsim.Log;
@@ -12,8 +13,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import power.PowerAgentSwitch;
-import power.PowerSwitchModel;
 import simulations.NetworkHelper;
 
 import java.util.ArrayList;
@@ -72,3 +71,4 @@ public class PowerAgentSwitchUnitTest {
         Assert.assertTrue(12. + 1. + 3. + -1 == powerAgentSwitch.getPowerSum());
     }
 }
+*/

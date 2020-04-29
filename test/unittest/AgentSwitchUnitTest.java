@@ -1,23 +1,21 @@
-package UnitTest;
+/*
+package unittest;
 
 import network.AgentHost;
 import network.AgentSwitch;
 import network.Port;
 import network.RawPacket;
-import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter;
 import org.cloudbus.cloudsim.network.datacenter.Switch;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Random;
 
 public class AgentSwitchUnitTest {
     private NetworkDatacenter dc;
@@ -30,9 +28,11 @@ public class AgentSwitchUnitTest {
     private AgentHost host2;
     private TestAgentSwitch agentSwitch1;
 
-    /**
+    */
+/**
      * This test class will be usefull to access to the protected method processPacket
-     */
+     *//*
+
     class TestAgentSwitch extends AgentSwitch {
         private boolean canCallSendRawPacket;
 
@@ -174,4 +174,4 @@ public class AgentSwitchUnitTest {
         Mockito.verify(mockedToSortList, Mockito.times(1)).add(packet);
 
     }
-}
+}*/
