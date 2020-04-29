@@ -1,30 +1,25 @@
-/*
 package simulations;
 
+import network.AgentDatacenter;
 import network.AgentHost;
-import org.apache.commons.math3.ml.neuralnet.Network;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.examples.power.Constants;
-import org.cloudbus.cloudsim.network.datacenter.NetDatacenterBroker;
 import org.cloudbus.cloudsim.network.datacenter.NetworkCloudlet;
-import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter;
-import org.cloudbus.cloudsim.network.datacenter.NetworkVm;
 
 import java.util.List;
 
-*/
 /**
  * Runner wich allows to run Network simulations
  * @author Théophane Dumas
- *//*
+ */
 
 public abstract class SimulationRunner {
     protected List<AgentHost> hostList;
-    protected List<NetworkCloudlet> coudletList;
-    protected List<NetworkVm> vmLists;
-    protected NetworkDatacenter networkDatacenter;
-    protected NetDatacenterBroker broker;
+    protected List<NetworkCloudlet> cloudletList;
+    protected List<Vm> vmLists;
+    protected AgentDatacenter agentDatacenter;
+    protected DatacenterBroker broker;
     private String name;
     private String workload;
     private String inputFolder;
@@ -36,23 +31,19 @@ public abstract class SimulationRunner {
         this.outputFolder=outputFolder;
     }
 
-    */
 /**
      * Init the simulation
-     * @throws Exception
-     *//*
-
+     * @throws Exception*/
     public abstract void init() throws Exception;
 
-    */
 /**
-     * Start the simulation
-     *//*
+     * Start the simulation*/
+
 
     public void start(){
         broker.submitVmList(vmLists);
-        broker.submitCloudletList(coudletList);
-        broker.setLinkDC(networkDatacenter);
+        broker.submitCloudletList(cloudletList);
+
         CloudSim.terminateSimulation(Constants.SIMULATION_LIMIT);
         double lastClock = CloudSim.startSimulation();
         System.out.println("last clock : " + lastClock);
@@ -62,8 +53,8 @@ public abstract class SimulationRunner {
 
         CloudSim.stopSimulation();
 
-        PowerNetworkHelper.printResults(
-                networkDatacenter,
+        NetworkHelper.printResults(
+                agentDatacenter,
                 vmLists,
                 lastClock,
                 name,
@@ -72,4 +63,3 @@ public abstract class SimulationRunner {
                 );
     }
 }
-*/

@@ -93,17 +93,12 @@ public class NetworkHelper {
         }
         for(int i=0; i<length; i++){
             if(i<length-1) {
-//                System.out.println("1");
-  //              agentSwitch[i].uplinkswitches = new ArrayList<>();
-    //            agentSwitch[i].uplinkswitches.add(agentSwitch[i + 1]);
                 agentSwitch[i].getUpSwitchConnexions().add(new Port(true, agentSwitch[i+1]));
             }
             else{
-/*                System.out.println("2");
-                agentSwitch[i].uplinkswitches = new ArrayList<>();
-                agentSwitch[i].uplinkswitches.add(agentSwitch[0]);*/
                 agentSwitch[i].getUpSwitchConnexions().add(new Port(true, agentSwitch[0]));
             }
+            agentSwitch[i].updateConnexions();
             System.out.println("uplink : " + i + " => " + agentSwitch[i].uplinkswitches);
             dc.getAgentSwitchs().put(agentSwitch[i].getId(), agentSwitch[i]);;
         }
@@ -129,7 +124,7 @@ public class NetworkHelper {
      * @param outputCsv
      * @param outputFolder
      */
-    public static void printResults(NetworkDatacenter datacenter, List<NetworkVm> vmList, double lastClock, String experimentName, boolean outputCsv, String outputFolder) {
+    public static void printResults(AgentDatacenter datacenter, List<Vm> vmList, double lastClock, String experimentName, boolean outputCsv, String outputFolder) {
         Log.printLine("Nothing new !");
     }
 
@@ -141,10 +136,10 @@ public class NetworkHelper {
             List<Pe> peList = new ArrayList();
 
             for(int j = 0; j < Constants.HOST_PES[hostType]; ++j) {
-                peList.add(new Pe(j, new PeProvisionerSimple((double)Constants.HOST_MIPS[hostType])));
+                peList.add(new Pe(j, new PeProvisionerSimple(Constants.HOST_MIPS[hostType])));
             }
 
-            hostList.add(new AgentHost(i, new RamProvisionerSimple(Constants.HOST_RAM[hostType]), new BwProvisionerSimple(1000000L), 1000000L, peList, new VmSchedulerTimeSharedOverSubscription(peList), Constants.HOST_POWER[hostType]));
+            hostList.add(new AgentHost(i, new RamProvisionerSimple(Constants.HOST_RAM[hostType]), new BwProvisionerSimple(10000000000L), 100000000000L, peList, new VmSchedulerTimeSharedOverSubscription(peList), Constants.HOST_POWER[hostType]));
         }
 
         return hostList;
