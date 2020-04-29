@@ -1,8 +1,7 @@
 package simulations;
 
-import network.AgentHost;
-import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.VmAllocationPolicySimple;
+import network.AgentHost;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.examples.power.Helper;
 

@@ -3,7 +3,6 @@ package unittest;
 import network.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter;
-import org.cloudbus.cloudsim.network.datacenter.Switch;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

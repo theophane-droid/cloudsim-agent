@@ -1,5 +1,6 @@
 package network;
 
+import org.apache.commons.math3.util.Pair;
 import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Log;
@@ -28,6 +29,8 @@ public class AgentSwitch extends SimEntity implements AgentActionner {
     private boolean isActive = true;
     public Map<Integer, AgentHost> hostlist =  new HashMap<>();
     public List<AgentSwitch> uplinkswitches = new ArrayList<>();
+    // this
+    private Map<Double, Pair<Double, Integer>> usageHistory = new HashMap<>();
     private Datacenter dc;
     private double switching_delay;
 
@@ -166,5 +169,13 @@ public class AgentSwitch extends SimEntity implements AgentActionner {
 
     public int getNbPorts() {
         return nbPorts;
+    }
+
+    public double getMbps() {
+        return 0;
+    }
+
+    public double getBandwidth() {
+        return 0;
     }
 }
