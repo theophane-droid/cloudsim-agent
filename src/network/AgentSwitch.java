@@ -1,5 +1,6 @@
 package network;
 
+import algorithms.Agent;
 import org.apache.commons.math3.util.Pair;
 import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.Host;
@@ -9,6 +10,8 @@ import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.core.SimEntity;
 import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.network.datacenter.*;
+import org.cloudbus.cloudsim.power.PowerHost;
+import power.AgentSwitchPowerModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +23,7 @@ import java.util.Map;
  * Warning : don't use hostlist and uplinkswitch
  * @author Théophane Dumas
  */
-public class AgentSwitch extends SimEntity implements AgentActionner {
+public class AgentSwitch extends SimEntity {
     private final int nbPorts;
     protected List<RawPacket> packetsToSort;
     protected List<RawPacket> packetsRecieved;
@@ -29,25 +32,28 @@ public class AgentSwitch extends SimEntity implements AgentActionner {
     private boolean isActive = true;
     public Map<Integer, AgentHost> hostlist =  new HashMap<>();
     public List<AgentSwitch> uplinkswitches = new ArrayList<>();
-    // this
     private Map<Double, Pair<Double, Integer>> usageHistory = new HashMap<>();
     private Datacenter dc;
     private double switching_delay;
+    private AgentSwitchPowerModel powerModel;
+    private List<Double> powerConsumptionHistory;
 
     /**
      * Constructor for AgentSwitch
      *
      * @see EdgeSwitch#EdgeSwitch(String, int, NetworkDatacenter)
      */
-    public AgentSwitch(Datacenter dc, int nbPorts, String name) {
+    public AgentSwitch(Datacenter dc, int nbPorts, String name, AgentSwitchPowerModel powerModel) {
         super(name);
         packetsToSort = new ArrayList<>();
         packetsRecieved = new ArrayList<>();
         hostConnexions = new ArrayList<>();
         upSwitchConnexions = new ArrayList<>();
+        powerConsumptionHistory = new ArrayList<>();
         this.nbPorts = nbPorts;
         this.dc=dc;
         this.switching_delay= NetworkConstants.SwitchingDelayEdge;
+        this.powerModel = powerModel;
     }
 
     @Override
@@ -97,10 +103,13 @@ public class AgentSwitch extends SimEntity implements AgentActionner {
     /**
      * Read packets destined for the switch
      */
-    private void readRecievedPackets(){
+    public void readRecievedPackets(){
         while(packetsRecieved.size()>0){
             RawPacket rawPacket = packetsRecieved.get(0);
             rawPacket.setRecievedBy(this);
+            if(rawPacket.getContent() instanceof Agent){
+                ((Agent)rawPacket.getContent()).action(this);
+            }
             packetsRecieved.remove(0);
         }
     }
@@ -143,6 +152,20 @@ public class AgentSwitch extends SimEntity implements AgentActionner {
         }
     }
 
+    /**
+     * @return a list wich contain : a true boolean if related host is up; the related port
+     */
+    public List<Pair<Boolean, Port>> sortUsedAndUnusedConnexions(){
+        PowerHost h;
+        List<Pair<Boolean, Port>> list = new ArrayList<>();
+        for(Port p: hostConnexions){
+            h = (PowerHost)p.getReliedObject();
+            boolean isUp = h.getStateHistory().get(h.getStateHistory().size()-1).isActive();
+            list.add(new Pair<>(isUp, p));
+        }
+        return list;
+    }
+
     public List<Port> getHostConnexions() {
         return hostConnexions;
     }
@@ -177,5 +200,16 @@ public class AgentSwitch extends SimEntity implements AgentActionner {
 
     public double getBandwidth() {
         return 0;
+    }
+
+    public void updatePowerConsumption() {
+        if(isActive)
+            powerConsumptionHistory.add(powerModel.getPowerConsumption(this));
+        else
+            powerConsumptionHistory.add(0.d);
+    }
+
+    public List<RawPacket> getPacketsToSort() {
+        return packetsToSort;
     }
 }

@@ -22,10 +22,11 @@ public enum AgentSwitchPowerModel {
         this.factor2 = factor2;
         this.factor3 = factor3;
         this.factor4 = factor4;
-
     }
-    private double getPowerConsumption(AgentSwitch agentSwitch){
-        return c + factor1 * agentSwitch.getMbps() + factor2 * agentSwitch.getBandwidth() + factor3 * agentSwitch.hostlist.size() +
-                factor4 * (agentSwitch.getMbps()*agentSwitch.hostlist.size());
+    public double getPowerConsumption(AgentSwitch agentSwitch){
+        if(agentSwitch.isActive())
+            return c + factor1 * agentSwitch.getMbps() + factor2 * agentSwitch.getBandwidth() + factor3 * agentSwitch.hostlist.size() +
+                    factor4 * (agentSwitch.getMbps()*agentSwitch.hostlist.size());
+        return 0;
     }
 }

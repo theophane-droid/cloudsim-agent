@@ -1,11 +1,13 @@
 package network;
 
+import algorithms.Agent;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Pe;
 import org.cloudbus.cloudsim.VmScheduler;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
-import org.cloudbus.cloudsim.power.PowerHost;
+import org.cloudbus.cloudsim.core.SimEntity;
+import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.power.PowerHostUtilizationHistory;
 import org.cloudbus.cloudsim.power.models.PowerModel;
 import org.cloudbus.cloudsim.provisioners.BwProvisioner;
@@ -18,7 +20,7 @@ import java.util.List;
  * A class wich allows RawPackets to be transferred to AgentSwitch.
  * @author Théophane DUmas
  */
-public class AgentHost extends PowerHostUtilizationHistory implements AgentActionner {
+public class AgentHost extends PowerHostUtilizationHistory{
     private List<RawPacket> packetsToSort;
     private List<RawPacket> packetsRecieved;
     private AgentSwitch sw;
@@ -29,6 +31,8 @@ public class AgentHost extends PowerHostUtilizationHistory implements AgentActio
         packetsToSort = new ArrayList<>();
         packetsRecieved = new ArrayList<>();
     }
+
+
 
     /**
      * @see Host#updateVmsProcessing(double)
@@ -43,7 +47,7 @@ public class AgentHost extends PowerHostUtilizationHistory implements AgentActio
     /**
      * Transferring or read RawPackets
      */
-    private void processPackets(){
+    public void processPackets(){
         while(packetsToSort.size()>0){
             RawPacket rawPacket = packetsToSort.get(0);
             if(rawPacket.getClassDest()==getClass() && rawPacket.getIdDest()==getId()){
@@ -67,12 +71,13 @@ public class AgentHost extends PowerHostUtilizationHistory implements AgentActio
     /**
      * Read packets destined for the host
      */
-    private void readRecievedPackets(){
+    public void readRecievedPackets(){
         while(packetsRecieved.size()>0){
-            RawPacket rawPacket = packetsRecieved.get(0);
-            System.out.println("recieved : " + rawPacket);
+            RawPacket rawPacket =packetsRecieved.remove(0);
             rawPacket.setRecievedBy(this);
-            packetsRecieved.remove(0);
+            if(rawPacket.getContent() instanceof Agent) {
+                ((Agent) rawPacket.getContent()).action(this);
+            }
         }
     }
     /**

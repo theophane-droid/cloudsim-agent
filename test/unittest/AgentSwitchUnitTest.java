@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import power.AgentSwitchPowerModel;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,7 +31,7 @@ public class AgentSwitchUnitTest {
         private boolean canCallSendRawPacket;
 
         public TestAgentSwitch(String name, NetworkDatacenter dc, boolean canCallSendRawPacket) {
-            super(dc, 24, name);
+            super(dc, 24, name, AgentSwitchPowerModel.CISCO_2960X);
             this.canCallSendRawPacket = canCallSendRawPacket;
         }
 

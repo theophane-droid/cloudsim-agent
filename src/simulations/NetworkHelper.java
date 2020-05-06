@@ -8,9 +8,11 @@ import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.examples.power.Constants;
 import org.cloudbus.cloudsim.examples.power.random.RandomConstants;
 import org.cloudbus.cloudsim.network.datacenter.*;
+import org.cloudbus.cloudsim.power.PowerVmAllocationPolicyMigrationAbstract;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
+import power.AgentSwitchPowerModel;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -85,7 +87,7 @@ public class NetworkHelper {
         AgentSwitch agentSwitch[] = new AgentSwitch[length];
 
         for (int i = 0; i < length; i++) {
-            agentSwitch[i] = new AgentSwitch(dc,24, "Edge_"+i);
+            agentSwitch[i] = new AgentSwitch(dc,24, "Edge_"+i, AgentSwitchPowerModel.CISCO_2960X);
             dc.getAgentSwitchs().put(agentSwitch[i].getId(), agentSwitch[i]);
         }
         for(int i=0; i<length; i++){
@@ -150,7 +152,7 @@ public class NetworkHelper {
      * @return
      * @throws Exception
      */
-    public static AgentDatacenter createDatacenter(String name,  List<AgentHost> hostList, VmAllocationPolicy vmAllocationPolicy) throws Exception {
+    public static AgentDatacenter createDatacenter(String name,  List<AgentHost> hostList, PowerVmAllocationPolicyMigrationAbstract vmAllocationPolicy) throws Exception {
         String arch = "x86";
         String os = "Linux";
         String vmm = "Xen";
@@ -163,7 +165,7 @@ public class NetworkHelper {
         AgentDatacenter datacenter = null;
 
         try {
-            datacenter = AgentDatacenter.class.getConstructor(String.class, DatacenterCharacteristics.class, VmAllocationPolicy.class, List.class, Double.TYPE).newInstance(name, characteristics, vmAllocationPolicy, new LinkedList(), 300.0D);
+            datacenter = AgentDatacenter.class.getConstructor(String.class, DatacenterCharacteristics.class, PowerVmAllocationPolicyMigrationAbstract.class, List.class, Double.TYPE).newInstance(name, characteristics, vmAllocationPolicy, new LinkedList(), 300.0D);
         } catch (Exception var20) {
             var20.printStackTrace();
             System.exit(0);

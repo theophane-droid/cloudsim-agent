@@ -18,6 +18,10 @@ public class Port {
         return isOpen;
     }
 
+    public void setOpen(boolean open) {
+        isOpen = open;
+    }
+
     public Object getReliedObject() {
         return reliedObject;
     }
