@@ -5,7 +5,6 @@ import org.ini4j.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.stream.Collector;
 
 import static java.lang.System.exit;
 
@@ -22,10 +21,9 @@ public class Main {
             e.printStackTrace();
             exit(-1);
         }
-        Class simulationRunnerClass;
         SimulationRunner simulationRunner = null;
         try {
-            simulationRunnerClass = Class.forName("simulations." + ini.get("agent","detection_method", String.class) + "Simulation");
+            Class simulationRunnerClass = Class.forName("simulations." + ini.get("agent","detection_method", String.class) + "Simulation");
             simulationRunner = (SimulationRunner)simulationRunnerClass.getConstructor(ini.getClass()).newInstance(ini);
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
             e.printStackTrace();

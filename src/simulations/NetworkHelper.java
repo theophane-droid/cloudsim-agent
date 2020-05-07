@@ -9,6 +9,7 @@ import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.examples.power.Constants;
 import org.cloudbus.cloudsim.examples.power.Helper;
 import org.cloudbus.cloudsim.examples.power.random.RandomConstants;
+import org.cloudbus.cloudsim.examples.power.random.RandomHelper;
 import org.cloudbus.cloudsim.network.datacenter.*;
 import org.cloudbus.cloudsim.power.PowerHost;
 import org.cloudbus.cloudsim.power.PowerVmAllocationPolicyMigrationAbstract;
@@ -20,6 +21,7 @@ import power.AgentSwitchPowerModel;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Class wich Help to build simulations quickly
@@ -29,13 +31,16 @@ public class NetworkHelper {
 
     /**
      * Create a NetworkDatacenter
+     *
+     * @param datacenter0
      * @param hostList the datacenters host list
      * @param vmAllocationPolicy
+     * @param cloudletList
      * @return the NetworkDatacenter created
      */
-    public static NetworkDatacenter createDatacenter(
-            List<AgentHost> hostList,
-            VmAllocationPolicy vmAllocationPolicy)  {
+    public static AgentDatacenter createDatacenter(
+            String datacenter0, List<AgentHost> hostList,
+            VmAllocationPolicy vmAllocationPolicy, List<Cloudlet> cloudletList)  {
         String arch = "x86"; // system architecture
         String os = "Linux"; // operating system
         String vmm = "Xen";
@@ -56,21 +61,23 @@ public class NetworkHelper {
                 costPerStorage,
                 costPerBw);
 
-        NetworkDatacenter datacenter = null;
+        AgentDatacenter datacenter = null;
 
         try {
-            Class datacenterClass = NetworkDatacenter.class;
-            datacenter = (NetworkDatacenter) datacenterClass.getConstructor(
+            Class datacenterClass = AgentDatacenter.class;
+            datacenter = (AgentDatacenter) datacenterClass.getConstructor(
                     String.class,
                     DatacenterCharacteristics.class,
-                    VmAllocationPolicy.class,
+                    PowerVmAllocationPolicyMigrationAbstract.class,
                     List.class,
-                    Double.TYPE).newInstance(
+                    Double.TYPE,
+                    List.class).newInstance(
                     "Datacenter",
                     characteristics,
                     vmAllocationPolicy,
                     new LinkedList<Storage>(),
-                    Constants.SCHEDULING_INTERVAL);
+                    Constants.SCHEDULING_INTERVAL,
+                    cloudletList);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(0);
@@ -129,13 +136,24 @@ public class NetworkHelper {
      * @param outputFolder
      */
     public static void printResults(AgentDatacenter datacenter, List<Vm> vmList, double lastClock, String experimentName, boolean outputCsv, String outputFolder) {
-        Helper.printResults(datacenter, vmList, lastClock, experimentName, outputCsv, outputFolder);
         Log.setDisabled(false);
+        Log.printLine("\n\n********Simulation summary********");
+        Log.printLine(datacenter.getHostList().size() + " hosts");
+        Log.printLine(datacenter.getAgentSwitchs().size() + " switchs");
+        Log.printLine(datacenter.getVmList().size() + " vms");
         Log.printLine("\n\n********Power consumption*******");
         Pair<Double, Double> power_result = datacenter.getPower2();
         Log.printLine("host consumption : " + power_result.getFirst()/(3600*1000) + " kWh");
         Log.printLine("switch consumption : " + power_result.getSecond()/(3600*1000) + " kWh");
         Log.printLine("total: " + (power_result.getFirst()+power_result.getSecond())/(3600*1000) + " kWh");
+    }
+    public static List<Cloudlet> createCloudletList(int brokerId, int nbCloudlet,List<Vm> vmList){
+        List<Cloudlet> cloudletList = RandomHelper.createCloudletList(brokerId, nbCloudlet);
+        for(int i=0;i<nbCloudlet; i++){
+            Vm vm = vmList.get(i%vmList.size());
+            cloudletList.get(i).setVmId(vm.getId());
+        }
+        return cloudletList;
     }
 
     public static List<AgentHost> createHostList(int hostsNumber) {
@@ -183,53 +201,6 @@ public class NetworkHelper {
         }
 
         return datacenter;
-    }
-    /**
-     * Create NetworkCloudlet list with simple tasks
-     * @param brokerId
-     * @param cloudletsNumber
-     * @return
-     */
-    public static List<NetworkCloudlet> createCloudletList(int brokerId, int cloudletsNumber) {
-        List<NetworkCloudlet> list = new ArrayList<>();
-
-        long fileSize = 300;
-        long outputSize = 300;
-        long seed = RandomConstants.CLOUDLET_UTILIZATION_SEED;
-        UtilizationModel utilizationModelNull = new UtilizationModelNull();
-
-        for (int i = 0; i < cloudletsNumber; i++) {
-            NetworkCloudlet cloudlet = null;
-            if (seed == -1) {
-                cloudlet = new NetworkCloudlet(
-                        i,
-                        Constants.CLOUDLET_LENGTH,
-                        Constants.CLOUDLET_PES,
-                        fileSize,
-                        outputSize,
-                        1024,
-                        utilizationModelNull,
-                        utilizationModelNull,
-                        new UtilizationModelStochastic());
-            } else {
-                cloudlet = new NetworkCloudlet(
-                        i,
-                        Constants.CLOUDLET_LENGTH,
-                        Constants.CLOUDLET_PES,
-                        fileSize,
-                        outputSize,
-                        1024,
-                        new UtilizationModelStochastic(seed * i),
-                        utilizationModelNull,
-                        utilizationModelNull);
-            }
-            cloudlet.setUserId(brokerId);
-            cloudlet.setVmId(i);
-            cloudlet.stages.add(new TaskStage(NetworkConstants.EXECUTION, NetworkConstants.COMMUNICATION_LENGTH, 100, i, 1000, 0,cloudlet.getCloudletId()));
-            list.add(cloudlet);
-        }
-
-        return list;
     }
     public static NetDatacenterBroker createBroker() throws Exception {
         return new NetDatacenterBroker("broker");

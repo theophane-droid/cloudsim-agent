@@ -6,22 +6,27 @@ import algorithms.Scheduler;
 import org.apache.commons.math3.util.Pair;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.core.predicates.PredicateType;
 import org.cloudbus.cloudsim.network.datacenter.EdgeSwitch;
 import org.cloudbus.cloudsim.network.datacenter.Switch;
 import org.cloudbus.cloudsim.power.PowerDatacenter;
+import org.cloudbus.cloudsim.power.PowerHost;
 import org.cloudbus.cloudsim.power.PowerVmAllocationPolicyMigrationAbstract;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class AgentDatacenter extends PowerDatacenter {
     private Map<Integer, AgentSwitch> agentSwitchs;
-    public AgentDatacenter(String name, DatacenterCharacteristics characteristics, PowerVmAllocationPolicyMigrationAbstract vmAllocationPolicy, List<Storage> storageList, double schedulingInterval) throws Exception {
+    private List<Cloudlet> cloudletList;
+    public AgentDatacenter(String name, DatacenterCharacteristics characteristics, PowerVmAllocationPolicyMigrationAbstract vmAllocationPolicy, List<Storage> storageList, double schedulingInterval, List cloudletList) throws Exception {
         super(name, characteristics, vmAllocationPolicy, storageList, schedulingInterval);
         agentSwitchs = new HashMap<>();
         createPowerConsumptionScheduler();
+        this.cloudletList = cloudletList;
     }
     private void createPowerConsumptionScheduler(){
         AgentDatacenter local_dc = this;
@@ -36,7 +41,28 @@ public class AgentDatacenter extends PowerDatacenter {
     }
     @Override
     public void updateCloudletProcessing(){
+        if (CloudSim.clock() < 0.111D || CloudSim.clock() > this.getLastProcessTime() + CloudSim.getMinTimeBetweenEvents()) {
+            List<? extends Host> list = this.getVmAllocationPolicy().getHostList();
+            double smallerTime = 1.7976931348623157E308D;
 
+            for(int i = 0; i < list.size(); ++i) {
+                Host host = (Host)list.get(i);
+                double time = host.updateVmsProcessing(CloudSim.clock());
+                if (time < smallerTime) {
+                    smallerTime = time;
+                }
+            }
+
+            if (smallerTime < CloudSim.clock() + CloudSim.getMinTimeBetweenEvents() + 0.01D) {
+                smallerTime = CloudSim.clock() + CloudSim.getMinTimeBetweenEvents() + 0.01D;
+            }
+
+            if (smallerTime != 1.7976931348623157E308D) {
+                this.schedule(this.getId(), smallerTime - CloudSim.clock(), 41);
+            }
+
+            this.setLastProcessTime(CloudSim.clock());
+        }
     }
 
 
@@ -110,5 +136,11 @@ public class AgentDatacenter extends PowerDatacenter {
         for(Host host : getHostList()){
             ((AgentHost)host).updatePowerConsumption();
         }
+    }
+
+    @Override
+    protected void processVmDestroy(SimEvent ev, boolean ack) {
+        //super.processVmDestroy(ev, ack);
+        //System.out.println("vm destroy");
     }
 }

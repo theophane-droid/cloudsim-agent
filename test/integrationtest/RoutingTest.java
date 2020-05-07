@@ -5,10 +5,7 @@ import network.AgentDatacenter;
 import network.AgentHost;
 import network.AgentSwitch;
 import network.RawPacket;
-import org.cloudbus.cloudsim.DatacenterBroker;
-import org.cloudbus.cloudsim.Log;
-import org.cloudbus.cloudsim.Vm;
-import org.cloudbus.cloudsim.VmAllocationPolicySimple;
+import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.examples.power.Helper;
 import org.cloudbus.cloudsim.network.datacenter.NetworkCloudlet;
@@ -41,7 +38,7 @@ public class RoutingTest {
         System.out.println(hostList);
         DatacenterBroker broker = Helper.createBroker();
         List<Vm> vmLists = Helper.createVmList(broker.getId(), 20);
-        List <NetworkCloudlet> cloudletList = NetworkHelper.createCloudletList(broker.getId(), 10);
+        List <Cloudlet> cloudletList = NetworkHelper.createCloudletList(broker.getId(), 10, vmLists);
         agentDatacenter = NetworkHelper.createDatacenter("datacenter0", hostList, new PowerVmAllocationPolicyMigrationStaticThreshold(hostList, new PowerVmSelectionPolicyMinimumMigrationTime(), 0.7D));
         NetworkHelper.buildNetwork(10, agentDatacenter);
 

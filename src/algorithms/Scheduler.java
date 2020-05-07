@@ -28,8 +28,6 @@ public class Scheduler extends SimEntity {
     private void cycle(){
         if(CloudSim.clock()-lastDatacenterEvent<100000)
             CloudSim.send(getId(), getId(), cycleDuration, CloudSimTags.NextCycle, null);
-        else
-            System.out.println("stop cycle");
     }
 
 

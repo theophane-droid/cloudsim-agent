@@ -1,5 +1,6 @@
 package simulations;
 
+import algorithms.Agent;
 import algorithms.Scheduler;
 import network.AgentDatacenter;
 import network.AgentHost;
@@ -7,7 +8,10 @@ import network.AgentSwitch;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.examples.power.Constants;
+import org.cloudbus.cloudsim.examples.power.Helper;
 import org.cloudbus.cloudsim.network.datacenter.NetworkCloudlet;
+import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter;
+import org.cloudbus.cloudsim.power.PowerDatacenterBroker;
 import org.ini4j.Wini;
 
 import javax.tools.JavaCompiler;
@@ -20,7 +24,7 @@ import java.util.List;
 
 public abstract class SimulationRunner {
     protected List<AgentHost> hostList;
-    protected List<NetworkCloudlet> cloudletList;
+    protected List<Cloudlet> cloudletList;
     protected List<Vm> vmLists;
     protected AgentDatacenter agentDatacenter;
     protected DatacenterBroker broker;
@@ -60,9 +64,10 @@ public abstract class SimulationRunner {
         CloudSim.stopSimulation();
 
         Log.setDisabled(false);
+        Helper.printCloudletList(cloudletList);
         NetworkHelper.printResults(
                 agentDatacenter,
-                vmLists,
+                broker.getVmList(),
                 lastClock,
                 name,
                 Constants.OUTPUT_CSV,

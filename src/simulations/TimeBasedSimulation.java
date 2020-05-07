@@ -11,6 +11,7 @@ import org.cloudbus.cloudsim.VmAllocationPolicySimple;
 import network.AgentHost;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.examples.power.Helper;
+import org.cloudbus.cloudsim.examples.power.random.RandomHelper;
 import org.cloudbus.cloudsim.power.PowerDatacenterBroker;
 import org.cloudbus.cloudsim.power.PowerVmAllocationPolicyMigrationLocalRegression;
 import org.cloudbus.cloudsim.power.PowerVmAllocationPolicyMigrationStaticThreshold;
@@ -66,8 +67,9 @@ public class TimeBasedSimulation extends SimulationRunner {
         System.out.println(hostList);
         broker = Helper.createBroker();
         vmLists = Helper.createVmList(broker.getId(), nbVms);
-        cloudletList = NetworkHelper.createCloudletList(broker.getId(), nbCloudlets);
-        agentDatacenter = NetworkHelper.createDatacenter("datacenter0", hostList,new PowerVmAllocationPolicyMigrationStaticThreshold(hostList, new PowerVmSelectionPolicyMinimumMigrationTime(), 0.7D));
+        System.out.println("size = " + vmLists.size());
+        cloudletList = NetworkHelper.createCloudletList(broker.getId(), nbCloudlets, vmLists);
+        agentDatacenter = NetworkHelper.createDatacenter("datacenter0", hostList,new PowerVmAllocationPolicyMigrationStaticThreshold(hostList, new PowerVmSelectionPolicyMinimumMigrationTime(), 0.7D), cloudletList);
         NetworkHelper.buildNetwork(nbHosts, agentDatacenter);
         Action action = new Action() {
             private AgentDatacenter dc = agentDatacenter;
