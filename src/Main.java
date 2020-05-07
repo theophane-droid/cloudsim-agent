@@ -1,6 +1,6 @@
 import org.cloudbus.cloudsim.Log;
 import simulations.SimulationRunner;
-import simulations.SimulationRunner1;
+import simulations.TimeBasedSimulation;
 
 public class Main {
     public static void main(String[] args) {
@@ -9,7 +9,7 @@ public class Main {
         String outputFolder = "output";
         String workload = "20110303"; // PlanetLab workload
 
-        SimulationRunner simulationRunner = new SimulationRunner1(
+        SimulationRunner simulationRunner = new TimeBasedSimulation(
                 "Simulation",
                 workload,
                 "res/planetlab",

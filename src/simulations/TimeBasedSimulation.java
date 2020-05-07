@@ -22,9 +22,9 @@ import java.util.List;
 /**
  * Class wich run the first simulation process based on planetlab cloudlets
  * @author Théophane Dumas*/
-public class SimulationRunner1 extends SimulationRunner {
+public class TimeBasedSimulation extends SimulationRunner {
 
-    public SimulationRunner1(String name,String workload, String inputFolder, String outputFolder) {
+    public TimeBasedSimulation(String name, String workload, String inputFolder, String outputFolder) {
         super(name, workload, inputFolder, outputFolder);
     }
 
