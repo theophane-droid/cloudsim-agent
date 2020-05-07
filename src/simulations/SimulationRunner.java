@@ -1,5 +1,6 @@
 package simulations;
 
+import algorithms.Scheduler;
 import network.AgentDatacenter;
 import network.AgentHost;
 import network.AgentSwitch;
@@ -42,17 +43,17 @@ public abstract class SimulationRunner {
 
 
     public void start(){
+        System.out.println("start");
         broker.submitVmList(vmLists);
         broker.submitCloudletList(cloudletList);
 
-      //  CloudSim.terminateSimulation(Constants.SIMULATION_LIMIT);
         double lastClock = CloudSim.startSimulation();
         System.out.println("last clock : " + lastClock);
 
         List<Cloudlet> newList = broker.getCloudletReceivedList();
         Log.printLine("Received " + newList.size() + " cloudlets");
-
         CloudSim.stopSimulation();
+
         Log.setDisabled(false);
         NetworkHelper.printResults(
                 agentDatacenter,
@@ -62,11 +63,11 @@ public abstract class SimulationRunner {
                 Constants.OUTPUT_CSV,
                 outputFolder
                 );
-        for(int i: agentDatacenter.getAgentSwitchs().keySet()){
+        /*for(int i: agentDatacenter.getAgentSwitchs().keySet()){
             AgentSwitch agentSwitch = agentDatacenter.getAgentSwitchs().get(i);
             System.out.println("switch : " + agentSwitch.getId());
             System.out.println("    nb history for switch " + agentSwitch.getId() + " => " + agentSwitch.getPowerConsumptionHistory().size());
             System.out.println("    energy consumption : " + agentSwitch.calcTotalPowerConsuption() + " kWh ");
-        }
+        }*/
     }
 }

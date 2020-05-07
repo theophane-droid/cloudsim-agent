@@ -1,9 +1,13 @@
 package network;
 
+import algorithms.Action;
 import algorithms.Agent;
+import algorithms.Scheduler;
+import org.apache.commons.math3.util.Pair;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.predicates.PredicateType;
+import org.cloudbus.cloudsim.network.datacenter.EdgeSwitch;
 import org.cloudbus.cloudsim.network.datacenter.Switch;
 import org.cloudbus.cloudsim.power.PowerDatacenter;
 import org.cloudbus.cloudsim.power.PowerVmAllocationPolicyMigrationAbstract;
@@ -17,11 +21,24 @@ public class AgentDatacenter extends PowerDatacenter {
     public AgentDatacenter(String name, DatacenterCharacteristics characteristics, PowerVmAllocationPolicyMigrationAbstract vmAllocationPolicy, List<Storage> storageList, double schedulingInterval) throws Exception {
         super(name, characteristics, vmAllocationPolicy, storageList, schedulingInterval);
         agentSwitchs = new HashMap<>();
-        Log.setDisabled(true);
+        createPowerConsumptionScheduler();
+    }
+    private void createPowerConsumptionScheduler(){
+        AgentDatacenter local_dc = this;
+        Action action = new Action(){
+            private AgentDatacenter dc = local_dc;
+            @Override
+            public void action() {
+                dc.updatePowerConsumption();
+            }
+        };
+        new Scheduler("power_scheduler", 1000, action);
     }
     @Override
     public void updateCloudletProcessing(){
+
     }
+
 
     public void sendAgent(){
         if (this.getCloudletSubmitted() != -1.0D && this.getCloudletSubmitted() != CloudSim.clock()) {
@@ -45,9 +62,6 @@ public class AgentDatacenter extends PowerDatacenter {
                     }
                 }
             }
-            for(int i: agentSwitchs.keySet()){
-                agentSwitchs.get(i).updatePowerConsumption();
-            }
             this.setLastProcessTime(currentTime);
         }
         else {
@@ -63,6 +77,13 @@ public class AgentDatacenter extends PowerDatacenter {
         send(entityId, delay, cloudSimTag, data);
     }
 
+    @Override
+    protected void send(int entityId, double delay, int cloudSimTag) {
+        super.send(entityId, delay, cloudSimTag);
+        // * when an agent datacenter event is called, we update the Scheduler counter
+        Scheduler.lastDatacenterEvent=CloudSim.clock();
+    }
+
     public Map<Integer, AgentSwitch> getAgentSwitchs() {
         return agentSwitchs;
     }
@@ -72,12 +93,23 @@ public class AgentDatacenter extends PowerDatacenter {
         return (PowerVmAllocationPolicyMigrationAbstract)super.getVmAllocationPolicy();
     }
 
-    @Override
-    public double getPower() {
-        double p1  = super.getPower();
-        for(int i: agentSwitchs.keySet()){
-            p1 += agentSwitchs.get(i).calcTotalPowerConsuption();
+    public Pair<Double, Double> getPower2() {
+        double power_host=0;
+        double power_switch=0;
+        for(Host h: getHostList()){
+            power_host += ((AgentHost)h).calcTotalPowerConsuption();
         }
-        return p1;
+        for(int i: agentSwitchs.keySet()){
+            power_switch += agentSwitchs.get(i).calcTotalPowerConsuption();
+        }
+        return new Pair(power_host, power_switch);
+    }
+    public void updatePowerConsumption(){
+        for(int i: getAgentSwitchs().keySet()){
+            getAgentSwitchs().get(i).updatePowerConsumption();;
+        }
+        for(Host host : getHostList()){
+            ((AgentHost)host).updatePowerConsumption();
+        }
     }
 }

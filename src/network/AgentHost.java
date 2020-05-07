@@ -1,6 +1,7 @@
 package network;
 
 import algorithms.Agent;
+import org.apache.commons.math3.util.Pair;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Pe;
 import org.cloudbus.cloudsim.VmScheduler;
@@ -27,11 +28,13 @@ public class AgentHost extends PowerHostUtilizationHistory{
     // * both following variables are usefull for modeling switch power consumption
     private double bwConsumption=-1;
     public double meanTraffic;
+    private List<Pair<Double, Double>> powerConsumptionHistory; // a pair : <time, power-value>
 
     public AgentHost(int id, RamProvisioner ramProvisioner, BwProvisioner bwProvisioner, long storage, List<? extends Pe> peList, VmScheduler vmScheduler, PowerModel powerModel) {
         super(id, ramProvisioner, bwProvisioner, storage, peList, vmScheduler, powerModel);
         packetsToSort = new ArrayList<>();
         packetsRecieved = new ArrayList<>();
+        powerConsumptionHistory = new ArrayList<>();
     }
 
 
@@ -106,5 +109,27 @@ public class AgentHost extends PowerHostUtilizationHistory{
 
     public void setSw(AgentSwitch sw) {
         this.sw = sw;
+    }
+
+    public void updatePowerConsumption() {
+        if(getStateHistory().size()==0 || getStateHistory().get(getStateHistory().size()-1).isActive())
+            powerConsumptionHistory.add(new Pair(CloudSim.clock(), getPower()));
+        else
+            powerConsumptionHistory.add(new Pair(CloudSim.clock(),0.d));
+    }
+    /**
+     * This method calculate approximately the total power consumption
+     * @return total consumption
+     */
+    public double calcTotalPowerConsuption(){
+        double sum=0;
+        Pair<Double, Double> lastPair, actualPair;
+        // * to get the total power consumption we do a simple linear interpolation
+        for(int i=1; i<powerConsumptionHistory.size(); i++){
+            lastPair = powerConsumptionHistory.get(i-1);
+            actualPair = powerConsumptionHistory.get(i);
+            sum += actualPair.getSecond() * (actualPair.getFirst()-lastPair.getFirst());
+        }
+        return sum;
     }
 }

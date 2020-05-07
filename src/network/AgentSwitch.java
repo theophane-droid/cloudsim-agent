@@ -208,8 +208,6 @@ public class AgentSwitch extends SimEntity {
     public void updatePowerConsumption() {
         updateConnexions();
         updateTraffic();
-        System.out.println("switch " + getId());
-        System.out.println("    get time : " + CloudSim.clock());
         if(isActive)
             powerConsumptionHistory.add(new Pair(CloudSim.clock(), powerModel.getPowerConsumption(this)));
         else
@@ -218,7 +216,7 @@ public class AgentSwitch extends SimEntity {
 
     /**
      * This method calculate approximately the total power consumption
-     * @return total kWh consumption
+     * @return total consumption
      */
     public double calcTotalPowerConsuption(){
         double sum=0;
@@ -227,8 +225,6 @@ public class AgentSwitch extends SimEntity {
         for(int i=1; i<powerConsumptionHistory.size(); i++){
             lastPair = powerConsumptionHistory.get(i-1);
             actualPair = powerConsumptionHistory.get(i);
-            System.out.println("    clock 1 : " + lastPair.getFirst());
-            System.out.println("    clock 2 : " + actualPair.getFirst());
             sum += actualPair.getSecond() * (actualPair.getFirst()-lastPair.getFirst());
         }
         return sum;

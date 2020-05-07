@@ -4,6 +4,7 @@ import network.AgentDatacenter;
 import network.AgentHost;
 import network.AgentSwitch;
 import network.Port;
+import org.apache.commons.math3.util.Pair;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.examples.power.Constants;
 import org.cloudbus.cloudsim.examples.power.Helper;
@@ -131,6 +132,12 @@ public class NetworkHelper {
      */
     public static void printResults(AgentDatacenter datacenter, List<Vm> vmList, double lastClock, String experimentName, boolean outputCsv, String outputFolder) {
         Helper.printResults(datacenter, vmList, lastClock, experimentName, outputCsv, outputFolder);
+        Log.setDisabled(false);
+        Log.printLine("\n\n********Power consumption*******");
+        Pair<Double, Double> power_result = datacenter.getPower2();
+        Log.printLine("host consumption : " + power_result.getFirst()/(3600*1000) + " kWh");
+        Log.printLine("switch consumption : " + power_result.getSecond()/(3600*1000) + " kWh");
+        Log.printLine("total: " + (power_result.getFirst()+power_result.getSecond())/(3600*1000) + " kWh");
     }
 
     public static List<AgentHost> createHostList(int hostsNumber) {
