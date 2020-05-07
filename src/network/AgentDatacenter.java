@@ -43,7 +43,6 @@ public class AgentDatacenter extends PowerDatacenter {
     public void sendAgent(){
         if (this.getCloudletSubmitted() != -1.0D && this.getCloudletSubmitted() != CloudSim.clock()) {
             double currentTime = CloudSim.clock();
-            System.out.println("current time : " + currentTime);
             if (currentTime > this.getLastProcessTime()) {
                 double minTime = this.updateCloudetProcessingWithoutSchedulingFutureEventsForce();
                 if (!this.isDisableMigrations()) {

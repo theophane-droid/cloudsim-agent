@@ -1,9 +1,11 @@
 package network;
 
 import algorithms.Agent;
+import algorithms.Vars;
 import org.apache.commons.math3.util.Pair;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Pe;
+import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmScheduler;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
@@ -96,15 +98,16 @@ public class AgentHost extends PowerHostUtilizationHistory{
         return sw;
     }
 
-    public void setBwConsumption(double bwConsumption) {
-        this.bwConsumption = bwConsumption;
-    }
 
     public double getMeanTraffic() {
-        if(bwConsumption==-1){
-            throw new RuntimeException("bw consumption of the agent host sould be set");
-        }
+        updateBwConsumption();
         return bwConsumption;
+    }
+
+    private void updateBwConsumption() {
+        bwConsumption=0;
+        for(Vm vm: getVmList())
+            bwConsumption+= Vars.MEAN_CLOUDLET_BW_CONSUMPTION;
     }
 
     public void setSw(AgentSwitch sw) {

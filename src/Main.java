@@ -1,19 +1,36 @@
 import org.cloudbus.cloudsim.Log;
-import simulations.SimulationRunner;
-import simulations.TimeBasedSimulation;
+import simulations.*;
+import org.ini4j.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.stream.Collector;
+
+import static java.lang.System.exit;
 
 public class Main {
+    /**
+     * Nothing to change here, please edit the simulation.ini file
+     * @param args
+     */
     public static void main(String[] args) {
-        boolean enableOutput = true;
-        boolean outputToFile = false;
-        String outputFolder = "output";
-        String workload = "20110303"; // PlanetLab workload
-
-        SimulationRunner simulationRunner = new TimeBasedSimulation(
-                "Simulation",
-                workload,
-                "res/planetlab",
-                "output");
+        Wini ini = null;
+        try {
+           ini = new Wini(new File("res/simulation.ini"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            exit(-1);
+        }
+        Class simulationRunnerClass;
+        SimulationRunner simulationRunner = null;
+        try {
+            simulationRunnerClass = Class.forName("simulations." + ini.get("agent","detection_method", String.class) + "Simulation");
+            simulationRunner = (SimulationRunner)simulationRunnerClass.getConstructor(ini.getClass()).newInstance(ini);
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+            e.printStackTrace();
+            exit(-1);
+        }
         try {
             simulationRunner.init();
             simulationRunner.start();

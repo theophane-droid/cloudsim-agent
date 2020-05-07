@@ -8,7 +8,9 @@ import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.examples.power.Constants;
 import org.cloudbus.cloudsim.network.datacenter.NetworkCloudlet;
+import org.ini4j.Wini;
 
+import javax.tools.JavaCompiler;
 import java.util.List;
 
 /**
@@ -26,6 +28,9 @@ public abstract class SimulationRunner {
     private String workload;
     private String inputFolder;
     private String outputFolder;
+
+    public SimulationRunner(){}
+
     public SimulationRunner(String name,String workload, String inputFolder, String outputFolder){
         this.name = name;
         this.workload=workload;
@@ -63,11 +68,5 @@ public abstract class SimulationRunner {
                 Constants.OUTPUT_CSV,
                 outputFolder
                 );
-        /*for(int i: agentDatacenter.getAgentSwitchs().keySet()){
-            AgentSwitch agentSwitch = agentDatacenter.getAgentSwitchs().get(i);
-            System.out.println("switch : " + agentSwitch.getId());
-            System.out.println("    nb history for switch " + agentSwitch.getId() + " => " + agentSwitch.getPowerConsumptionHistory().size());
-            System.out.println("    energy consumption : " + agentSwitch.calcTotalPowerConsuption() + " kWh ");
-        }*/
     }
 }

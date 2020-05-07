@@ -101,7 +101,6 @@ public class NetworkHelper {
                 agentSwitch[i].getUpSwitchConnexions().add(new Port(true, agentSwitch[0]));
             }
             agentSwitch[i].updateConnexions();
-            System.out.println("uplink : " + i + " => " + agentSwitch[i].uplinkswitches);
             dc.getAgentSwitchs().put(agentSwitch[i].getId(), agentSwitch[i]);;
         }
         for (Host hs : dc.getHostList()) {
@@ -116,7 +115,6 @@ public class NetworkHelper {
         }
         for(Host h1 :  dc.getHostList()){
             AgentHost h= (AgentHost)h1;
-            h.setBwConsumption(500);
         }
 
     }
