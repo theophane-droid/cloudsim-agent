@@ -1,7 +1,7 @@
 # Java-agent simulation in Cloudsim
-This java project allow to simulate the usage of an java agent in cloudcomputing. This agent is send to Hosts and Switchs to make VM migration and Switchs optimization.
+This java project allow to simulate the usage of an java agent in cloud computing. This agent is send to Hosts and Switchs to make VM migration and Switchs optimization.
 ## 1 Setup
-To run this project you need to add the following librairies :
+To run this project you need to add the following libraries :
 
 - cloudsim-3.0.3
 - hamc rest-2.2
@@ -13,7 +13,7 @@ Others versions could works but didn't be tested.
 
 ## 2 Organization of the project
 
-1. res : contains ressources and config files for the simulation
+1. res : contains resources and config files for the simulation
 
 2. src: contains the simulation sources
 
@@ -26,6 +26,7 @@ Others versions could works but didn't be tested.
    ​	2.4: simulations: contains classes related to simulation, the Main file dynamically call the proper Simulation (depend on the config.ini file)
 
 3. test: contains classes tests 
+4. lib: contains the lib of the project
 
 
 
