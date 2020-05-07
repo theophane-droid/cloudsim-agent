@@ -17,11 +17,16 @@ public class AgentDatacenter extends PowerDatacenter {
     public AgentDatacenter(String name, DatacenterCharacteristics characteristics, PowerVmAllocationPolicyMigrationAbstract vmAllocationPolicy, List<Storage> storageList, double schedulingInterval) throws Exception {
         super(name, characteristics, vmAllocationPolicy, storageList, schedulingInterval);
         agentSwitchs = new HashMap<>();
+        Log.setDisabled(true);
     }
     @Override
     public void updateCloudletProcessing(){
+    }
+
+    public void sendAgent(){
         if (this.getCloudletSubmitted() != -1.0D && this.getCloudletSubmitted() != CloudSim.clock()) {
             double currentTime = CloudSim.clock();
+            System.out.println("current time : " + currentTime);
             if (currentTime > this.getLastProcessTime()) {
                 double minTime = this.updateCloudetProcessingWithoutSchedulingFutureEventsForce();
                 if (!this.isDisableMigrations()) {
@@ -40,14 +45,14 @@ public class AgentDatacenter extends PowerDatacenter {
                     }
                 }
             }
+            for(int i: agentSwitchs.keySet()){
+                agentSwitchs.get(i).updatePowerConsumption();
+            }
             this.setLastProcessTime(currentTime);
         }
         else {
             CloudSim.cancelAll(this.getId(), new PredicateType(41));
             this.schedule(this.getId(), this.getSchedulingInterval(), 41);
-        }
-        for(int i: agentSwitchs.keySet()){
-            agentSwitchs.get(i).updatePowerConsumption();
         }
     }
     public void publicIncrementMigrationCount(){
@@ -65,5 +70,14 @@ public class AgentDatacenter extends PowerDatacenter {
     @Override
     public PowerVmAllocationPolicyMigrationAbstract getVmAllocationPolicy() {
         return (PowerVmAllocationPolicyMigrationAbstract)super.getVmAllocationPolicy();
+    }
+
+    @Override
+    public double getPower() {
+        double p1  = super.getPower();
+        for(int i: agentSwitchs.keySet()){
+            p1 += agentSwitchs.get(i).calcTotalPowerConsuption();
+        }
+        return p1;
     }
 }

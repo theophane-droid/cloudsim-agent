@@ -24,7 +24,9 @@ public class AgentHost extends PowerHostUtilizationHistory{
     private List<RawPacket> packetsToSort;
     private List<RawPacket> packetsRecieved;
     private AgentSwitch sw;
-    public double bandwidth;
+    // * both following variables are usefull for modeling switch power consumption
+    private double bwConsumption=-1;
+    public double meanTraffic;
 
     public AgentHost(int id, RamProvisioner ramProvisioner, BwProvisioner bwProvisioner, long storage, List<? extends Pe> peList, VmScheduler vmScheduler, PowerModel powerModel) {
         super(id, ramProvisioner, bwProvisioner, storage, peList, vmScheduler, powerModel);
@@ -89,6 +91,17 @@ public class AgentHost extends PowerHostUtilizationHistory{
 
     public AgentSwitch getSw() {
         return sw;
+    }
+
+    public void setBwConsumption(double bwConsumption) {
+        this.bwConsumption = bwConsumption;
+    }
+
+    public double getMeanTraffic() {
+        if(bwConsumption==-1){
+            throw new RuntimeException("bw consumption of the agent host sould be set");
+        }
+        return bwConsumption;
     }
 
     public void setSw(AgentSwitch sw) {

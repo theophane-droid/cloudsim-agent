@@ -17,7 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * this class centralize
+ * This class represent the java Agent
+ * @author Théophane Dumas
  */
 public class Agent {
     private AgentDatacenter agentDatacenter;
@@ -31,7 +32,6 @@ public class Agent {
      * @return true if modification has been done
      */
     public boolean action(AgentHost host){
-        System.out.println("action");
         List<Map<String, Object>> migrationMap = agentDatacenter.getVmAllocationPolicy().optimizeAllocation(host.getVmList());
         double currentTime = CloudSim.clock();
         if (migrationMap != null) {
@@ -61,12 +61,8 @@ public class Agent {
      * @return true if modification has been done on AgentSwitch
      */
     public boolean action(AgentSwitch sw){
-        System.out.println("action from switch " + sw.getId()) ;
         boolean modification = false;
         List<Pair<Boolean, Port>> list = sw.sortUsedAndUnusedConnexions();
-        for(Pair<Boolean, Port> pair: list){
-            System.out.println("    connexion to host " + ((Host)pair.getSecond().getReliedObject()).getId() + " : " + pair.getFirst());
-        }
         int nbHostUp = 0;
         for(Pair<Boolean, Port> p: list){
             modification = p.getFirst() != p.getSecond().isOpen() || modification;
@@ -77,10 +73,6 @@ public class Agent {
         modification = nbHostUp!=0 != sw.isActive() || modification;
         sw.setIsActive(nbHostUp!=0);
         sw.updateConnexions();
-        if(modification){
-/*            System.out.println("things has been modified");
-            System.out.println("nb Host up : " + nbHostUp);*/
-        }
         return modification;
     }
 }

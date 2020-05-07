@@ -13,10 +13,7 @@ import org.cloudbus.cloudsim.network.datacenter.*;
 import org.cloudbus.cloudsim.power.PowerHost;
 import power.AgentSwitchPowerModel;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A class wich allow to recieved RawPaquet, and to switch off/on ports
@@ -36,14 +33,16 @@ public class AgentSwitch extends SimEntity {
     private Datacenter dc;
     private double switching_delay;
     private AgentSwitchPowerModel powerModel;
-    private List<Double> powerConsumptionHistory;
+    private List<Pair<Double, Double>> powerConsumptionHistory; // a pair : <time, power-value>
+    private double traffic;
+    private double bandwidth;
 
     /**
      * Constructor for AgentSwitch
      *
      * @see EdgeSwitch#EdgeSwitch(String, int, NetworkDatacenter)
      */
-    public AgentSwitch(Datacenter dc, int nbPorts, String name, AgentSwitchPowerModel powerModel) {
+    public AgentSwitch(Datacenter dc, int nbPorts, String name, AgentSwitchPowerModel powerModel, double bandwidth) {
         super(name);
         packetsToSort = new ArrayList<>();
         packetsRecieved = new ArrayList<>();
@@ -54,6 +53,7 @@ public class AgentSwitch extends SimEntity {
         this.dc=dc;
         this.switching_delay= NetworkConstants.SwitchingDelayEdge;
         this.powerModel = powerModel;
+        this.bandwidth=bandwidth;
     }
 
     @Override
@@ -126,14 +126,13 @@ public class AgentSwitch extends SimEntity {
                     if(!(hostlist.get(i) instanceof AgentHost)){
                         throw new RuntimeException("Raw packet can only be adressed to an AgentHost");
                     }
-                    ((AgentHost)hostlist.get(i)).getPacketsToSort().add(rawPacket);
+                    hostlist.get(i).getPacketsToSort().add(rawPacket);
                     hasBeenSended=true;
                 }
             }
         }
         if(!hasBeenSended)
             CloudSim.send(dc.getId(), uplinkswitches.get(0).getId(), switching_delay, CloudSimTags.Network_Event_UP, rawPacket);
-        System.out.println("uplinkswitch : " + this.getId() + " => " + uplinkswitches);
     }
 
     /**
@@ -153,7 +152,7 @@ public class AgentSwitch extends SimEntity {
     }
 
     /**
-     * @return a list wich contain : a true boolean if related host is up; the related port
+     * @return a list which contain : <a true boolean if related host is up; the related port>
      */
     public List<Pair<Boolean, Port>> sortUsedAndUnusedConnexions(){
         PowerHost h;
@@ -172,10 +171,6 @@ public class AgentSwitch extends SimEntity {
 
     public List<Port> getUpSwitchConnexions() {
         return upSwitchConnexions;
-    }
-
-    public void refreshHostConnexions(List<Port> hostConnexions) {
-        this.hostConnexions = new ArrayList<>();
     }
 
     public void refreshUpSwitchConnexions(List<RawPacket> packetsToSort) {
@@ -198,18 +193,52 @@ public class AgentSwitch extends SimEntity {
         return 0;
     }
 
-    public double getBandwidth() {
-        return 0;
+    public double getTraffic() {
+        return traffic;
     }
 
+    public void updateTraffic(){
+        traffic = 0;
+        int key=0;
+        for (Iterator<Integer> i = hostlist.keySet().iterator(); i.hasNext();){
+            key = i.next();
+            traffic += hostlist.get(key).getMeanTraffic();
+        }
+    }
     public void updatePowerConsumption() {
+        updateConnexions();
+        updateTraffic();
+        System.out.println("switch " + getId());
+        System.out.println("    get time : " + CloudSim.clock());
         if(isActive)
-            powerConsumptionHistory.add(powerModel.getPowerConsumption(this));
+            powerConsumptionHistory.add(new Pair(CloudSim.clock(), powerModel.getPowerConsumption(this)));
         else
-            powerConsumptionHistory.add(0.d);
+            powerConsumptionHistory.add(new Pair(CloudSim.clock(),0.d));
+    }
+
+    /**
+     * This method calculate approximately the total power consumption
+     * @return total kWh consumption
+     */
+    public double calcTotalPowerConsuption(){
+        double sum=0;
+        Pair<Double, Double> lastPair, actualPair;
+        // * to get the total power consumption we do a simple linear interpolation
+        for(int i=1; i<powerConsumptionHistory.size(); i++){
+            lastPair = powerConsumptionHistory.get(i-1);
+            actualPair = powerConsumptionHistory.get(i);
+            System.out.println("    clock 1 : " + lastPair.getFirst());
+            System.out.println("    clock 2 : " + actualPair.getFirst());
+            sum += actualPair.getSecond() * (actualPair.getFirst()-lastPair.getFirst());
+        }
+        return sum;
     }
 
     public List<RawPacket> getPacketsToSort() {
         return packetsToSort;
+    }
+
+    public List<Pair<Double, Double>> getPowerConsumptionHistory() {
+        return powerConsumptionHistory;
     }
 }

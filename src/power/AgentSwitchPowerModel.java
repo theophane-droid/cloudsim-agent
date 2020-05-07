@@ -25,7 +25,7 @@ public enum AgentSwitchPowerModel {
     }
     public double getPowerConsumption(AgentSwitch agentSwitch){
         if(agentSwitch.isActive())
-            return c + factor1 * agentSwitch.getMbps() + factor2 * agentSwitch.getBandwidth() + factor3 * agentSwitch.hostlist.size() +
+            return c + factor1 * agentSwitch.getTraffic() + factor2 * agentSwitch.getMbps() + factor3 * agentSwitch.hostlist.size() +
                     factor4 * (agentSwitch.getMbps()*agentSwitch.hostlist.size());
         return 0;
     }

@@ -2,6 +2,7 @@ package simulations;
 
 import network.AgentDatacenter;
 import network.AgentHost;
+import network.AgentSwitch;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.examples.power.Constants;
@@ -52,7 +53,7 @@ public abstract class SimulationRunner {
         Log.printLine("Received " + newList.size() + " cloudlets");
 
         CloudSim.stopSimulation();
-
+        Log.setDisabled(false);
         NetworkHelper.printResults(
                 agentDatacenter,
                 vmLists,
@@ -61,5 +62,11 @@ public abstract class SimulationRunner {
                 Constants.OUTPUT_CSV,
                 outputFolder
                 );
+        for(int i: agentDatacenter.getAgentSwitchs().keySet()){
+            AgentSwitch agentSwitch = agentDatacenter.getAgentSwitchs().get(i);
+            System.out.println("switch : " + agentSwitch.getId());
+            System.out.println("    nb history for switch " + agentSwitch.getId() + " => " + agentSwitch.getPowerConsumptionHistory().size());
+            System.out.println("    energy consumption : " + agentSwitch.calcTotalPowerConsuption() + " kWh ");
+        }
     }
 }

@@ -31,7 +31,7 @@ public class AgentSwitchUnitTest {
         private boolean canCallSendRawPacket;
 
         public TestAgentSwitch(String name, NetworkDatacenter dc, boolean canCallSendRawPacket) {
-            super(dc, 24, name, AgentSwitchPowerModel.CISCO_2960X);
+            super(dc, 24, name, AgentSwitchPowerModel.CISCO_2960X, 4000);
             this.canCallSendRawPacket = canCallSendRawPacket;
         }
 

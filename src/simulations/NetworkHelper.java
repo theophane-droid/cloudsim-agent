@@ -6,8 +6,10 @@ import network.AgentSwitch;
 import network.Port;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.examples.power.Constants;
+import org.cloudbus.cloudsim.examples.power.Helper;
 import org.cloudbus.cloudsim.examples.power.random.RandomConstants;
 import org.cloudbus.cloudsim.network.datacenter.*;
+import org.cloudbus.cloudsim.power.PowerHost;
 import org.cloudbus.cloudsim.power.PowerVmAllocationPolicyMigrationAbstract;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
@@ -87,7 +89,7 @@ public class NetworkHelper {
         AgentSwitch agentSwitch[] = new AgentSwitch[length];
 
         for (int i = 0; i < length; i++) {
-            agentSwitch[i] = new AgentSwitch(dc,24, "Edge_"+i, AgentSwitchPowerModel.CISCO_2960X);
+            agentSwitch[i] = new AgentSwitch(dc,24, "Edge_"+i, AgentSwitchPowerModel.CISCO_2960X, 4000);
             dc.getAgentSwitchs().put(agentSwitch[i].getId(), agentSwitch[i]);
         }
         for(int i=0; i<length; i++){
@@ -103,13 +105,17 @@ public class NetworkHelper {
         }
         for (Host hs : dc.getHostList()) {
             AgentHost hs1 = (AgentHost) hs;
-            hs1.bandwidth = NetworkConstants.BandWidthEdgeHost;
+            hs1.meanTraffic = NetworkConstants.BandWidthEdgeHost;
             int switchnum = (int) (hs.getId() / NetworkConstants.EdgeSwitchPort);
 
         //    agentSwitch[switchnum].hostlist.put(hs.getId(), hs1);
             hs1.setSw(agentSwitch[switchnum]);
             agentSwitch[switchnum].getHostConnexions().add(new Port(true, hs1));
             agentSwitch[switchnum].updateConnexions();
+        }
+        for(Host h1 :  dc.getHostList()){
+            AgentHost h= (AgentHost)h1;
+            h.setBwConsumption(500);
         }
 
     }
@@ -124,7 +130,7 @@ public class NetworkHelper {
      * @param outputFolder
      */
     public static void printResults(AgentDatacenter datacenter, List<Vm> vmList, double lastClock, String experimentName, boolean outputCsv, String outputFolder) {
-        Log.printLine("Nothing new !");
+        Helper.printResults(datacenter, vmList, lastClock, experimentName, outputCsv, outputFolder);
     }
 
     public static List<AgentHost> createHostList(int hostsNumber) {
