@@ -53,8 +53,8 @@ public abstract class SimulationRunner {
 
     public void start(){
         System.out.println("start");
-        broker.submitVmList(vmLists);
         broker.submitCloudletList(cloudletList);
+        broker.submitVmList(vmLists);
 
         double lastClock = CloudSim.startSimulation();
         System.out.println("last clock : " + lastClock);

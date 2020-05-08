@@ -6,6 +6,7 @@ import algorithms.Scheduler;
 import org.apache.commons.math3.util.Pair;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
+import org.cloudbus.cloudsim.core.SimEntity;
 import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.core.predicates.PredicateType;
 import org.cloudbus.cloudsim.network.datacenter.EdgeSwitch;
@@ -37,7 +38,7 @@ public class AgentDatacenter extends PowerDatacenter {
                 dc.updatePowerConsumption();
             }
         };
-        new Scheduler("power_scheduler", 1000, action);
+        new Scheduler("power_scheduler", 100, action);
     }
     @Override
     public void updateCloudletProcessing(){
@@ -65,6 +66,21 @@ public class AgentDatacenter extends PowerDatacenter {
         }
     }
 
+    private void sendAgentTo(AgentHost from, Object to){
+        Agent a = new Agent(this);
+        RawPacket packet;
+        if(to instanceof AgentHost) { // if it's an AgentHost
+            AgentHost host = (AgentHost) to;
+            packet = new RawPacket(host.getId(), host.getId(), null, host.getClass(), a);
+        }
+        else{ // if not it's a switch
+            AgentSwitch agentSwitch = (AgentSwitch) to;
+            packet = new RawPacket(agentSwitch.getId(), agentSwitch.getId(), null, agentSwitch.getClass(), a);
+        }
+        from.getPacketsToSort().add(packet);
+        from.processPackets();
+        from.readRecievedPackets();
+    }
 
     public void sendAgent(){
         if (this.getCloudletSubmitted() != -1.0D && this.getCloudletSubmitted() != CloudSim.clock()) {
@@ -72,18 +88,13 @@ public class AgentDatacenter extends PowerDatacenter {
             if (currentTime > this.getLastProcessTime()) {
                 double minTime = this.updateCloudetProcessingWithoutSchedulingFutureEventsForce();
                 if (!this.isDisableMigrations()) {
-                    Agent a = new Agent(this);
+                    AgentHost h1 = (AgentHost) getHostList().get(0);
                     for (Host h : getHostList()) {
-                        AgentHost agentHost = (AgentHost) h;
-                        agentHost.getPacketsToSort().add(new RawPacket(0, agentHost.getId(), null, agentHost.getClass(), a));
-                        agentHost.processPackets();
-                        agentHost. readRecievedPackets();
+                        if(((AgentHost)h).isUp())
+                            sendAgentTo(h1, h);
                     }
                     for(int id: getAgentSwitchs().keySet()){
-                        AgentSwitch sw = getAgentSwitchs().get(id);
-                        sw.getPacketsToSort().add(new RawPacket(0, sw.getId(), null, sw.getClass(), a));
-                        sw.processPackets(sw.getPacketsToSort());
-                        sw.readRecievedPackets();
+                        sendAgentTo(h1, getAgentSwitchs().get(id));
                     }
                 }
             }
@@ -140,7 +151,11 @@ public class AgentDatacenter extends PowerDatacenter {
 
     @Override
     protected void processVmDestroy(SimEvent ev, boolean ack) {
-        //super.processVmDestroy(ev, ack);
-        //System.out.println("vm destroy");
+        super.processVmDestroy(ev, ack);
+    }
+
+    @Override
+    public void shutdownEntity() {
+
     }
 }

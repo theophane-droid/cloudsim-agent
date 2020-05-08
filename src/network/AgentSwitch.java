@@ -85,19 +85,17 @@ public class AgentSwitch extends SimEntity {
      * @param packetsToSort
      */
     protected void processPackets(List<RawPacket> packetsToSort) {
-        if (isActive) {
-            while (packetsToSort.size() > 0) {
-                RawPacket rawPacket = packetsToSort.get(0);
-                rawPacket.decrementTTL();
-                if (rawPacket.getTTL() > 0) {
-                    if (rawPacket.getClassDest() == getClass() && rawPacket.getIdDest() == getId())
-                        packetsRecieved.add(rawPacket);
-                    else
-                        sendRawPaquet(rawPacket);
+        while (packetsToSort.size() > 0) {
+            RawPacket rawPacket = packetsToSort.get(0);
+            rawPacket.decrementTTL();
+            if (rawPacket.getTTL() > 0) {
+                if (rawPacket.getClassDest() == getClass() && rawPacket.getIdDest() == getId())
+                    packetsRecieved.add(rawPacket);
+                else
+                    sendRawPaquet(rawPacket);
 
-                }
-                packetsToSort.remove(0);
             }
+            packetsToSort.remove(0);
         }
     }
     /**

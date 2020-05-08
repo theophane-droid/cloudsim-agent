@@ -135,4 +135,9 @@ public class AgentHost extends PowerHostUtilizationHistory{
         }
         return sum;
     }
+    boolean isUp(){
+        if(getStateHistory().size()==0)
+            return false;
+        return getStateHistory().get(getStateHistory().size()-1).isActive();
+    }
 }
