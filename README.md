@@ -21,14 +21,12 @@ Others versions could works but didn't be tested.
 
    ​	2.2: network: contains classes to give network capability
 
-   ​	2.3: power: contains classes to simulate power consumption (for now it just contain AgentSwitchPowerModel)
+   ​	2.3: power: contains classes to simulate power consumption (for now it just contains AgentSwitchPowerModel)
 
    ​	2.4: simulations: contains classes related to simulation, the Main file dynamically call the proper Simulation (depend on the config.ini file)
 
 3. test: contains classes tests 
 4. lib: contains the lib of the project
-
-
 
 ## 3 Run
 
@@ -38,5 +36,7 @@ To run a first simulation just use the src/Main.java class as entry point.
 
 Look at the simulation.ini file to change simulation parameters like detection method (time based or event based), number of host, number of cloudlets, number of vms... 
 
-## Continuing the development
+## 5 Continuing the development
+
+To continue the development of the simulations, please try to use Agent classes because there are designed to work together.
 
