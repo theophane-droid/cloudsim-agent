@@ -1,5 +1,6 @@
 package simulations;
 
+import algorithms.Action;
 import algorithms.Agent;
 import algorithms.Scheduler;
 import network.AgentDatacenter;
@@ -13,6 +14,7 @@ import org.cloudbus.cloudsim.network.datacenter.NetworkCloudlet;
 import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter;
 import org.cloudbus.cloudsim.power.PowerDatacenterBroker;
 import org.ini4j.Wini;
+import utils.Utils;
 
 import javax.tools.JavaCompiler;
 import java.util.List;
@@ -32,20 +34,25 @@ public abstract class SimulationRunner {
     private String workload;
     private String inputFolder;
     private String outputFolder;
+    protected int nbHosts;
+    protected int nbVms;
+    protected int nbCloudlets;
+    private boolean printDatacenter;
 
     public SimulationRunner(){}
 
-    public SimulationRunner(String name,String workload, String inputFolder, String outputFolder){
+    public SimulationRunner(String name,String workload, String inputFolder, String outputFolder, boolean printDatacenter){
         this.name = name;
         this.workload=workload;
         this.inputFolder=inputFolder;
         this.outputFolder=outputFolder;
+        this.printDatacenter=printDatacenter;
     }
 
-/**
+    /**
      * Init the simulation
-     * @throws Exception*/
-    public abstract void init() throws Exception;
+     */
+    public abstract void init();
 
 /**
      * Start the simulation*/
@@ -54,7 +61,12 @@ public abstract class SimulationRunner {
     public void start(){
         System.out.println("start");
         broker.submitCloudletList(cloudletList);
+        List<Vm> vmLists2 = Utils.copyList(vmLists);
         broker.submitVmList(vmLists);
+
+        System.out.println("print datacenter = " + printDatacenter);
+        if(printDatacenter)
+            activeSimulationPrint();
 
         double lastClock = CloudSim.startSimulation();
         System.out.println("last clock : " + lastClock);
@@ -63,15 +75,28 @@ public abstract class SimulationRunner {
         Log.printLine("Received " + newList.size() + " cloudlets");
         CloudSim.stopSimulation();
 
+
+
         Log.setDisabled(false);
         Helper.printCloudletList(cloudletList);
         NetworkHelper.printResults(
                 agentDatacenter,
-                broker.getVmList(),
+                vmLists2,
                 lastClock,
                 name,
                 Constants.OUTPUT_CSV,
                 outputFolder
                 );
+    }
+    protected void activeSimulationPrint(){
+        System.out.println("active simulation print");
+        Action action = new Action() {
+            private AgentDatacenter dc = agentDatacenter;
+            @Override
+            public void action() {
+                Utils.printDatacenterState(dc, CloudSim.clock());
+            }
+        };
+        new Scheduler("printer_scheduler", 20000, action);
     }
 }

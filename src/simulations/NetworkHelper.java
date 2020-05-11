@@ -140,7 +140,7 @@ public class NetworkHelper {
         Log.printLine("\n\n********Simulation summary********");
         Log.printLine(datacenter.getHostList().size() + " hosts");
         Log.printLine(datacenter.getAgentSwitchs().size() + " switchs");
-        Log.printLine(datacenter.getVmList().size() + " vms");
+        Log.printLine(vmList.size() + " vms");
         Log.printLine("\n\n********Power consumption*******");
         Pair<Double, Double> power_result = datacenter.getPower2();
         Log.printLine("host consumption : " + power_result.getFirst()/(3600*1000) + " kWh");

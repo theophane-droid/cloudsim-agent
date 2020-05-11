@@ -12,6 +12,7 @@ import org.cloudbus.cloudsim.core.SimEvent;
 import org.cloudbus.cloudsim.network.datacenter.*;
 import org.cloudbus.cloudsim.power.PowerHost;
 import power.AgentSwitchPowerModel;
+import utils.Utils;
 
 import java.util.*;
 
@@ -89,11 +90,12 @@ public class AgentSwitch extends SimEntity {
             RawPacket rawPacket = packetsToSort.get(0);
             rawPacket.decrementTTL();
             if (rawPacket.getTTL() > 0) {
-                if (rawPacket.getClassDest() == getClass() && rawPacket.getIdDest() == getId())
+                if (rawPacket.getClassDest() == getClass() && rawPacket.getIdDest() == getId()) {
                     packetsRecieved.add(rawPacket);
-                else
+                }
+                else {
                     sendRawPaquet(rawPacket);
-
+                }
             }
             packetsToSort.remove(0);
         }
@@ -125,6 +127,7 @@ public class AgentSwitch extends SimEntity {
                         throw new RuntimeException("Raw packet can only be adressed to an AgentHost");
                     }
                     hostlist.get(i).getPacketsToSort().add(rawPacket);
+                    hostlist.get(i).processPackets();
                     hasBeenSended=true;
                 }
             }
@@ -207,9 +210,9 @@ public class AgentSwitch extends SimEntity {
         updateConnexions();
         updateTraffic();
         if(isActive)
-            powerConsumptionHistory.add(new Pair(CloudSim.clock(), powerModel.getPowerConsumption(this)));
+            powerConsumptionHistory.add(new Pair<>(CloudSim.clock(), powerModel.getPowerConsumption(this)));
         else
-            powerConsumptionHistory.add(new Pair(CloudSim.clock(),0.d));
+            powerConsumptionHistory.add(new Pair<>(CloudSim.clock(),0.d));
     }
 
     /**
@@ -217,15 +220,7 @@ public class AgentSwitch extends SimEntity {
      * @return total consumption
      */
     public double calcTotalPowerConsuption(){
-        double sum=0;
-        Pair<Double, Double> lastPair, actualPair;
-        // * to get the total power consumption we do a simple linear interpolation
-        for(int i=1; i<powerConsumptionHistory.size(); i++){
-            lastPair = powerConsumptionHistory.get(i-1);
-            actualPair = powerConsumptionHistory.get(i);
-            sum += actualPair.getSecond() * (actualPair.getFirst()-lastPair.getFirst());
-        }
-        return sum;
+        return Utils.calcPowerConsumtion(powerConsumptionHistory);
     }
 
     public List<RawPacket> getPacketsToSort() {

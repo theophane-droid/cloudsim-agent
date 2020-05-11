@@ -1,42 +1,36 @@
 package simulations;
 
 import algorithms.Action;
-import algorithms.Agent;
 import algorithms.Scheduler;
 import network.AgentDatacenter;
-import org.cloudbus.cloudsim.Cloudlet;
-import org.cloudbus.cloudsim.Datacenter;
-import org.cloudbus.cloudsim.Log;
-import org.cloudbus.cloudsim.VmAllocationPolicySimple;
 import network.AgentHost;
+import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.examples.power.Helper;
-import org.cloudbus.cloudsim.examples.power.random.RandomHelper;
-import org.cloudbus.cloudsim.power.PowerDatacenterBroker;
-import org.cloudbus.cloudsim.power.PowerVmAllocationPolicyMigrationLocalRegression;
 import org.cloudbus.cloudsim.power.PowerVmAllocationPolicyMigrationStaticThreshold;
 import org.cloudbus.cloudsim.power.PowerVmSelectionPolicyMinimumMigrationTime;
 import org.ini4j.Wini;
 import utils.Utils;
+import utils.Vars;
 
 import java.util.Calendar;
 import java.util.List;
 
 /**
- * Class wich run a simulation with an agent time based
+ * A class wich allow to run a daemon based simulation
  * @author Théophane Dumas
- **/
-public class TimeBasedSimulation extends SimulationRunner {
-    private double repeatingTime;
-
-    public TimeBasedSimulation(){
+ */
+public class DaemonBasedSimulation extends SimulationRunner{
+    private float daemonMipsConsumption;;
+    public DaemonBasedSimulation(){
         super();
     }
+
     /**
      * This constructor is called dynamically in Main
      * @param ini
      */
-    public TimeBasedSimulation(Wini ini) {
+    public DaemonBasedSimulation(Wini ini) {
         this(ini.get("simulation","name", String.class),
                 "",
                 "",
@@ -44,20 +38,23 @@ public class TimeBasedSimulation extends SimulationRunner {
                 ini.get("datacenter","nb_hosts", int.class),
                 ini.get("datacenter","nb_vms", int.class),
                 ini.get("datacenter","nb_cloudlets", int.class),
-                ini.get("TimeBased","repeating_time", double.class),
+                ini.get("DaemonBased","mips_consuption", float.class),
+                ini.get("DaemonBased","lower_bound_ratio", float.class),
+                ini.get("DaemonBased","upper_bound_ratio", float.class),
                 ini.get("simulation","print_datacenter",boolean.class));
     }
 
-    public TimeBasedSimulation(String name, String workload, String inputFolder, String outputFolder,
-                               int nbHost, int nbVms, int nbCloudlets, double repeatingTime, boolean printDatacenter) {
+    public DaemonBasedSimulation(String name, String workload, String inputFolder, String outputFolder,
+                               int nbHost, int nbVms, int nbCloudlets, float daemonMipsConsumption,
+                                 float lower_bound, float upper_bound, boolean printDatacenter) {
         super(name, workload, inputFolder, outputFolder, printDatacenter);
         this.nbHosts = nbHost;
         this.nbVms = nbVms;
         this.nbCloudlets = nbCloudlets;
-        this.repeatingTime = repeatingTime;
+        this.daemonMipsConsumption = daemonMipsConsumption;
+        Vars.DAEMON_UPPER_BOUND=upper_bound;
+        Vars.DAEMON_LOWER_BOUND=lower_bound;
     }
-
-    @Override
     public void init() {
         Log.setDisabled(true);
         // * define the simulation
@@ -70,13 +67,20 @@ public class TimeBasedSimulation extends SimulationRunner {
         Scheduler.cloudletsList = Utils.copyList(cloudletList);
         agentDatacenter = NetworkHelper.createDatacenter("datacenter0", hostList,new PowerVmAllocationPolicyMigrationStaticThreshold(hostList, new PowerVmSelectionPolicyMinimumMigrationTime(), 0.7D), cloudletList);
         NetworkHelper.buildNetwork(nbHosts, agentDatacenter);
+        // * now we start the daemon on every host
+        for(AgentHost host: hostList){
+            host.startDaemon();
+        }
+        // * we sent the agent once
+        agentDatacenter.sendAgent();
+
         Action action = new Action() {
             private AgentDatacenter dc = agentDatacenter;
             @Override
             public void action() {
-                dc.sendAgent();
+                dc.updateCloudletProcessing();
             }
         };
-        new Scheduler("scheduler", repeatingTime, action);
+        new Scheduler("scheduler", 1000, action);
     }
 }

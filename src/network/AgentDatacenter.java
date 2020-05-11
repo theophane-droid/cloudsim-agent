@@ -38,7 +38,7 @@ public class AgentDatacenter extends PowerDatacenter {
                 dc.updatePowerConsumption();
             }
         };
-        new Scheduler("power_scheduler", 100, action);
+        new Scheduler("power_scheduler", 50, action);
     }
     @Override
     public void updateCloudletProcessing(){
@@ -66,16 +66,16 @@ public class AgentDatacenter extends PowerDatacenter {
         }
     }
 
-    private void sendAgentTo(AgentHost from, Object to){
+    public void sendAgentTo(AgentHost from, Object to){
         Agent a = new Agent(this);
         RawPacket packet;
         if(to instanceof AgentHost) { // if it's an AgentHost
             AgentHost host = (AgentHost) to;
-            packet = new RawPacket(host.getId(), host.getId(), null, host.getClass(), a);
+            packet = new RawPacket(from.getId(), host.getId(), null, host.getClass(), a);
         }
         else{ // if not it's a switch
             AgentSwitch agentSwitch = (AgentSwitch) to;
-            packet = new RawPacket(agentSwitch.getId(), agentSwitch.getId(), null, agentSwitch.getClass(), a);
+            packet = new RawPacket(from.getId(), agentSwitch.getId(), from.getClass(), agentSwitch.getClass(), a);
         }
         from.getPacketsToSort().add(packet);
         from.processPackets();
@@ -116,8 +116,6 @@ public class AgentDatacenter extends PowerDatacenter {
     @Override
     protected void send(int entityId, double delay, int cloudSimTag) {
         super.send(entityId, delay, cloudSimTag);
-        // * when an agent datacenter event is called, we update the Scheduler counter
-        Scheduler.lastDatacenterEvent=CloudSim.clock();
     }
 
     public Map<Integer, AgentSwitch> getAgentSwitchs() {
