@@ -37,3 +37,6 @@ To run a first simulation just use the src/Main.java class as entry point.
 ## 4 Change the parameters
 
 Look at the simulation.ini file to change simulation parameters like detection method (time based or event based), number of host, number of cloudlets, number of vms... 
+
+## Continuing the development
+

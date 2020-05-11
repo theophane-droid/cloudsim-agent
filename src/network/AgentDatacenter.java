@@ -14,6 +14,7 @@ import org.cloudbus.cloudsim.network.datacenter.Switch;
 import org.cloudbus.cloudsim.power.PowerDatacenter;
 import org.cloudbus.cloudsim.power.PowerHost;
 import org.cloudbus.cloudsim.power.PowerVmAllocationPolicyMigrationAbstract;
+import utils.Vars;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,7 +39,7 @@ public class AgentDatacenter extends PowerDatacenter {
                 dc.updatePowerConsumption();
             }
         };
-        new Scheduler("power_scheduler", 50, action);
+        new Scheduler("power_scheduler", Vars.POWER_MEASURE_INTERVAL, action);
     }
     @Override
     public void updateCloudletProcessing(){

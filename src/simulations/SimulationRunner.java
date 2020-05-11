@@ -1,22 +1,15 @@
 package simulations;
 
 import algorithms.Action;
-import algorithms.Agent;
 import algorithms.Scheduler;
 import network.AgentDatacenter;
 import network.AgentHost;
-import network.AgentSwitch;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.examples.power.Constants;
 import org.cloudbus.cloudsim.examples.power.Helper;
-import org.cloudbus.cloudsim.network.datacenter.NetworkCloudlet;
-import org.cloudbus.cloudsim.network.datacenter.NetworkDatacenter;
-import org.cloudbus.cloudsim.power.PowerDatacenterBroker;
-import org.ini4j.Wini;
 import utils.Utils;
 
-import javax.tools.JavaCompiler;
 import java.util.List;
 
 /**
@@ -64,7 +57,6 @@ public abstract class SimulationRunner {
         List<Vm> vmLists2 = Utils.copyList(vmLists);
         broker.submitVmList(vmLists);
 
-        System.out.println("print datacenter = " + printDatacenter);
         if(printDatacenter)
             activeSimulationPrint();
 
@@ -88,6 +80,10 @@ public abstract class SimulationRunner {
                 outputFolder
                 );
     }
+
+    /**
+     * This method use a Scheduler to print every 20000 sec
+     */
     protected void activeSimulationPrint(){
         System.out.println("active simulation print");
         Action action = new Action() {
@@ -97,6 +93,6 @@ public abstract class SimulationRunner {
                 Utils.printDatacenterState(dc, CloudSim.clock());
             }
         };
-        new Scheduler("printer_scheduler", 20000, action);
+        new Scheduler("printer_scheduler", 20, action);
     }
 }

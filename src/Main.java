@@ -1,6 +1,7 @@
 import org.cloudbus.cloudsim.Log;
 import simulations.*;
 import org.ini4j.*;
+import utils.Vars;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +22,7 @@ public class Main {
             e.printStackTrace();
             exit(-1);
         }
+        Vars.loadFromIniFile(ini);
         SimulationRunner simulationRunner = null;
         try {
             Class simulationRunnerClass = Class.forName("simulations." + ini.get("agent","detection_method", String.class) + "Simulation");

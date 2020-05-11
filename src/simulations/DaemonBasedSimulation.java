@@ -1,14 +1,13 @@
 package simulations;
 
 import algorithms.Action;
+import algorithms.AgentPowerLocalRegressionPolicyMigration;
 import algorithms.Scheduler;
 import network.AgentDatacenter;
 import network.AgentHost;
 import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.examples.power.Helper;
-import org.cloudbus.cloudsim.power.PowerVmAllocationPolicyMigrationStaticThreshold;
-import org.cloudbus.cloudsim.power.PowerVmSelectionPolicyMinimumMigrationTime;
 import org.ini4j.Wini;
 import utils.Utils;
 import utils.Vars;
@@ -63,13 +62,18 @@ public class DaemonBasedSimulation extends SimulationRunner{
         broker = Helper.createBroker();
         vmLists = Helper.createVmList(broker.getId(), nbVms);
         cloudletList = NetworkHelper.createCloudletList(broker.getId(), nbCloudlets, vmLists);
+        System.out.println("cloudlet list size = " + cloudletList.size());
         // * we set the Scheduler cloudlet list (very important)
         Scheduler.cloudletsList = Utils.copyList(cloudletList);
-        agentDatacenter = NetworkHelper.createDatacenter("datacenter0", hostList,new PowerVmAllocationPolicyMigrationStaticThreshold(hostList, new PowerVmSelectionPolicyMinimumMigrationTime(), 0.7D), cloudletList);
+        agentDatacenter = NetworkHelper.createDatacenter("datacenter0", hostList, AgentPowerLocalRegressionPolicyMigration.createAgentPolicy(hostList), cloudletList);
         NetworkHelper.buildNetwork(nbHosts, agentDatacenter);
         // * now we start the daemon on every host
         for(AgentHost host: hostList){
             host.startDaemon();
+        }
+        // * on every switchs too
+        for(int id: agentDatacenter.getAgentSwitchs().keySet()){
+            agentDatacenter.getAgentSwitchs().get(id).startDaemon();
         }
         // * we sent the agent once
         agentDatacenter.sendAgent();

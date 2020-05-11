@@ -13,6 +13,7 @@ import org.cloudbus.cloudsim.network.datacenter.*;
 import org.cloudbus.cloudsim.power.PowerHost;
 import power.AgentSwitchPowerModel;
 import utils.Utils;
+import utils.Vars;
 
 import java.util.*;
 
@@ -37,6 +38,8 @@ public class AgentSwitch extends SimEntity {
     private List<Pair<Double, Double>> powerConsumptionHistory; // a pair : <time, power-value>
     private double traffic;
     private double bandwidth;
+    // * is this var = true, the simulation should be DaemonBased
+    private boolean isRunningDaemon = false;
 
     /**
      * Constructor for AgentSwitch
@@ -156,14 +159,18 @@ public class AgentSwitch extends SimEntity {
      * @return a list which contain : <a true boolean if related host is up; the related port>
      */
     public List<Pair<Boolean, Port>> sortUsedAndUnusedConnexions(){
-        PowerHost h;
+        AgentHost h;
         List<Pair<Boolean, Port>> list = new ArrayList<>();
         for(Port p: hostConnexions){
-            h = (PowerHost)p.getReliedObject();
-            boolean isUp = h.getStateHistory().get(h.getStateHistory().size()-1).isActive();
+            h = (AgentHost)p.getReliedObject();
+            boolean isUp = h.isUp();
             list.add(new Pair<>(isUp, p));
         }
         return list;
+    }
+
+    public boolean isActive(PowerHost h) {
+        return h.getStateHistory().get(h.getStateHistory().size()-1).isActive();
     }
 
     public List<Port> getHostConnexions() {
@@ -213,6 +220,22 @@ public class AgentSwitch extends SimEntity {
             powerConsumptionHistory.add(new Pair<>(CloudSim.clock(), powerModel.getPowerConsumption(this)));
         else
             powerConsumptionHistory.add(new Pair<>(CloudSim.clock(),0.d));
+        checkDaemon();
+    }
+
+    private boolean checkDaemon() {
+        boolean modification = false;
+        List<Pair<Boolean, Port>> list = sortUsedAndUnusedConnexions();
+        int nbHostUp = 0;
+        for(Pair<Boolean, Port> p: list){
+            modification = p.getFirst() != p.getSecond().isOpen() || modification;
+            if(p.getFirst())
+                nbHostUp+=1;
+        }
+        modification = nbHostUp!=0 != isActive() || modification;
+        if(modification)
+            ((AgentDatacenter)dc).sendAgentTo((AgentHost) dc.getHostList().get(dc.getHostList().size()-1), this);
+        return modification;
     }
 
     /**
@@ -229,5 +252,21 @@ public class AgentSwitch extends SimEntity {
 
     public List<Pair<Double, Double>> getPowerConsumptionHistory() {
         return powerConsumptionHistory;
+    }
+
+    /**
+     * If you call this method, that activates the daemon wich will call the Agent under lower bound and overhead upper bound of cpu utilization
+     */
+    public void startDaemon(){
+        if(Vars.DAEMON_LOWER_BOUND<0 || Vars.DAEMON_LOWER_BOUND>1){
+            throw new RuntimeException("Vars.DAEMON_LOWER_SHOULD be between 0 and 1, check the simulation.ini file");
+        }
+        if(Vars.DAEMON_UPPER_BOUND<0 || Vars.DAEMON_UPPER_BOUND>1){
+            throw new RuntimeException("Vars.DAEMON_UPPER_BOUND be between 0 and 1, check the simulation.ini file");
+        }
+        if(Vars.DAEMON_UPPER_BOUND<=Vars.DAEMON_LOWER_BOUND){
+            throw new RuntimeException("Vars.DAEMON_UPPER_BOUND should be greater that Vars.DAEMON_LOWER_BOUND, check the simulation.ini file");
+        }
+        isRunningDaemon = true;
     }
 }

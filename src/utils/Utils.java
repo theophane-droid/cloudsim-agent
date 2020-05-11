@@ -43,7 +43,7 @@ public class Utils {
         System.out.println(dc.getName() + " at " + clock);
         for(Host h1: dc.getHostList()){
             AgentHost  h = (AgentHost) h1;
-            System.out.println("    host " + h.getId() + " : " + "( is active : " + h.isUp() + " )");
+            System.out.println("    host " + h.getId() + " : " + "( is active : " + h.isUp() + " )" + ", utilization = " + h.getUtilizationOfCpu());
             for(Vm v: h.getVmList()){
                 System.out.println("        vm " + v.getId());
             }
