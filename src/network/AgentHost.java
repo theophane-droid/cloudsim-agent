@@ -18,6 +18,7 @@ import org.cloudbus.cloudsim.provisioners.RamProvisioner;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * A class wich allows RawPackets to be transferred to AgentSwitch.
  * @author Théophane DUmas
@@ -33,14 +34,14 @@ public class AgentHost extends PowerHostUtilizationHistory{
     // * is this var = true, the simulation should be DaemonBased
     private boolean isRunningDaemon = false;
 
+    public boolean agentAsBeenRunning = false;
+
     public AgentHost(int id, RamProvisioner ramProvisioner, BwProvisioner bwProvisioner, long storage, List<? extends Pe> peList, VmScheduler vmScheduler, PowerModel powerModel) {
         super(id, ramProvisioner, bwProvisioner, storage, peList, vmScheduler, powerModel);
         packetsToSort = new ArrayList<>();
         packetsRecieved = new ArrayList<>();
         powerConsumptionHistory = new ArrayList<>();
     }
-
-
 
     /**
      * @see Host#updateVmsProcessing(double)
@@ -121,6 +122,7 @@ public class AgentHost extends PowerHostUtilizationHistory{
             powerConsumptionHistory.add(new Pair(CloudSim.clock(), getPower()));
             if(isRunningDaemon){
                 checkDaemon();
+                //allocatePeForDaemon();
             }
         }
         else
@@ -132,8 +134,7 @@ public class AgentHost extends PowerHostUtilizationHistory{
      * @return true if the utilization is out the bounds
      **/
     private boolean checkDaemon() {
-        if(getUtilizationOfCpu()<=Vars.DAEMON_LOWER_BOUND || getUtilizationOfCpu()>=Vars.DAEMON_UPPER_BOUND){
-            //System.out.println("ask to send daemon ");
+        if(getUtilizationOfCpu()<Vars.DAEMON_LOWER_BOUND || getUtilizationOfCpu()>Vars.DAEMON_UPPER_BOUND){
             ((AgentDatacenter)getDatacenter()).sendAgentTo((AgentHost) getDatacenter().getHostList().get(0), this);
             return true;
         }
@@ -168,5 +169,23 @@ public class AgentHost extends PowerHostUtilizationHistory{
             throw new RuntimeException("Vars.DAEMON_UPPER_BOUND should be greater that Vars.DAEMON_LOWER_BOUND, check the simulation.ini file");
         }
         isRunningDaemon = true;
+    }
+
+    @Override
+    public double getUtilizationOfCpu() {
+        double d=super.getUtilizationOfCpu();
+        if(isRunningDaemon && isUp()) {
+            d += Vars.MIPS_DAEMON_UTILIZATION / getTotalMips();
+        }
+        if(agentAsBeenRunning) {
+            System.out.println("switch agent utilization " + Vars.MIPS_AGENT_UTILIZATION);
+            System.out.println("before " + d);
+            d += Vars.MIPS_AGENT_UTILIZATION / getTotalMips();
+            System.out.println("after " + d);
+            agentAsBeenRunning=false;
+        }
+        if(d>1)
+            return 1;
+        return d;
     }
 }

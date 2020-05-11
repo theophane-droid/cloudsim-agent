@@ -53,6 +53,7 @@ public class Agent {
                 agentDatacenter.publicSend(agentDatacenter.getId(), (double)vm.getRam() / ((double)targetHost.getBw() / 16000.0D), 35, migrate);
             }
         }
+        host.agentAsBeenRunning=true;
         return migrationMap!=null;
     }
     /**
