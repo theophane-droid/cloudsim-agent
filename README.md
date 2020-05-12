@@ -9,7 +9,7 @@ To run this project you need to add the following libraries :
 - mockito-all-1.9.5
 - ini4j
 
-Others versions could works but didn't be tested.
+Others versions could works but didn't be tested. All the librairies are in the lib folder.
 
 ## 2 Organization of the project
 
