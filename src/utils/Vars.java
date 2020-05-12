@@ -2,7 +2,13 @@ package utils;
 
 import org.ini4j.Wini;
 
+/**
+ * This class define different globals variables, everything can be changed from the ini file. If a variable is not defined in the ini file, it will takes the value bellow.
+ * @author Théophane Dumas
+ */
 public class Vars {
+    // * followings vars can be changed from the ini file in the agent section
+    public static double BW_AGENT_UTILIZATION = 20;
     public static double MIPS_AGENT_UTILIZATION = 200;
     // * followings vars can be changed from the ini file in the vars section
     public static double SAFETY_PARAMETER = 0.7;
@@ -12,13 +18,13 @@ public class Vars {
     public static float DAEMON_UPPER_BOUND=-1;
     public static float DAEMON_LOWER_BOUND=-1;
     public static double MIPS_DAEMON_UTILIZATION = 100;
-    public static double RAM_DAEMON_UTILIZATION = 100;
     public static void loadFromIniFile(Wini ini){
         SAFETY_PARAMETER = setDouble(ini,"SAFETY_PARAMETER".toLowerCase(), SAFETY_PARAMETER);
         POWER_MEASURE_INTERVAL = setDouble(ini,"POWER_MEASURE_INTERVAL".toLowerCase(),POWER_MEASURE_INTERVAL);
         MEAN_CLOUDLET_BW_CONSUMPTION = setDouble(ini,"MEAN_CLOUDLET_BW_CONSUMPTION".toLowerCase(),MEAN_CLOUDLET_BW_CONSUMPTION);
         MIPS_DAEMON_UTILIZATION = setDouble(ini, "DaemonBased","MIPS_DAEMON_UTILIZATION".toLowerCase(), MIPS_DAEMON_UTILIZATION);
         MIPS_AGENT_UTILIZATION = setDouble(ini, "agent","MIPS_AGENT_UTILIZATION".toLowerCase(), MIPS_AGENT_UTILIZATION);
+        BW_AGENT_UTILIZATION = setDouble(ini, "agent","BW_AGENT_UTILIZATION".toLowerCase(), BW_AGENT_UTILIZATION);
         System.out.println(SAFETY_PARAMETER);
         System.out.println(POWER_MEASURE_INTERVAL);
         System.out.println(MEAN_CLOUDLET_BW_CONSUMPTION);

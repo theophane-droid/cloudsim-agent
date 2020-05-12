@@ -40,6 +40,8 @@ public class AgentSwitch extends SimEntity {
     private double bandwidth;
     // * is this var = true, the simulation should be DaemonBased
     private boolean isRunningDaemon = false;
+    // * this var rpz a bandwitch consumption increase for a short time
+    private double bwIncrease;
 
     /**
      * Constructor for AgentSwitch
@@ -80,18 +82,27 @@ public class AgentSwitch extends SimEntity {
     }
 
     @Override
-    public void shutdownEntity() {
+    public void shutdownEntity() {}
 
+    /**
+     * This private method allow to check if the packet contains an Agent. If it does, it will add bandwidth consumption due to the agent.
+     * @param packet the concerned packet
+     */
+    private void checkIfAgent(RawPacket packet){
+        if(packet.getContent() instanceof Agent){
+            addToBwIncrease(Vars.BW_AGENT_UTILIZATION);
+        }
     }
 
     /**
      * Transferring or read RawPackets
-     * @param packetsToSort
+     * @param packetsToSort packet the concerned list
      */
     protected void processPackets(List<RawPacket> packetsToSort) {
         while (packetsToSort.size() > 0) {
             RawPacket rawPacket = packetsToSort.get(0);
             rawPacket.decrementTTL();
+            checkIfAgent(rawPacket);
             if (rawPacket.getTTL() > 0) {
                 if (rawPacket.getClassDest() == getClass() && rawPacket.getIdDest() == getId()) {
                     packetsRecieved.add(rawPacket);
@@ -208,10 +219,12 @@ public class AgentSwitch extends SimEntity {
     public void updateTraffic(){
         traffic = 0;
         int key=0;
-        for (Iterator<Integer> i = hostlist.keySet().iterator(); i.hasNext();){
+        for (Iterator<Integer> i = hostlist.keySet().iterator(); i.hasNext();) {
             key = i.next();
             traffic += hostlist.get(key).getMeanTraffic();
         }
+        traffic+=bwIncrease;
+        bwIncrease=0;
     }
     public void updatePowerConsumption() {
         updateConnexions();
@@ -268,5 +281,13 @@ public class AgentSwitch extends SimEntity {
             throw new RuntimeException("Vars.DAEMON_UPPER_BOUND should be greater that Vars.DAEMON_LOWER_BOUND, check the simulation.ini file");
         }
         isRunningDaemon = true;
+    }
+
+    /**
+     * This method allow user to increase momentarily the Bw consumption
+     * @param d
+     */
+    public void addToBwIncrease(double d){
+        bwIncrease+=d;
     }
 }

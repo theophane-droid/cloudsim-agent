@@ -57,7 +57,6 @@ public class AgentHost extends PowerHostUtilizationHistory{
      * Transferring or read RawPackets
      */
     public void processPackets(){
-        //System.out.println("host " + getId());
         while(packetsToSort.size()>0){
             RawPacket rawPacket = packetsToSort.remove(0);
             if(rawPacket.getClassDest()==getClass() && rawPacket.getIdDest()==getId()){
@@ -109,7 +108,7 @@ public class AgentHost extends PowerHostUtilizationHistory{
 
     private void updateBwConsumption() {
         bwConsumption=0;
-        for(Vm vm: getVmList())
+        for(Vm ignored : getVmList())
             bwConsumption+= Vars.MEAN_CLOUDLET_BW_CONSUMPTION;
     }
 
@@ -122,7 +121,6 @@ public class AgentHost extends PowerHostUtilizationHistory{
             powerConsumptionHistory.add(new Pair(CloudSim.clock(), getPower()));
             if(isRunningDaemon){
                 checkDaemon();
-                //allocatePeForDaemon();
             }
         }
         else
@@ -178,10 +176,7 @@ public class AgentHost extends PowerHostUtilizationHistory{
             d += Vars.MIPS_DAEMON_UTILIZATION / getTotalMips();
         }
         if(agentAsBeenRunning) {
-            System.out.println("switch agent utilization " + Vars.MIPS_AGENT_UTILIZATION);
-            System.out.println("before " + d);
             d += Vars.MIPS_AGENT_UTILIZATION / getTotalMips();
-            System.out.println("after " + d);
             agentAsBeenRunning=false;
         }
         if(d>1)
