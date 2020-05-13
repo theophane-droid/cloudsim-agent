@@ -24,6 +24,8 @@ Others versions could works but didn't be tested. All the librairies are in the 
    ​	2.3: power: contains classes to simulate power consumption (for now it just contains AgentSwitchPowerModel)
 
    ​	2.4: simulations: contains classes related to simulation, the Main file dynamically call the proper Simulation (depend on the config.ini file)
+        
+        2.5: utils: contains a Utils class which contains differents usefull methods. Contains a Vars class with a lot of globals vars defined in it.
 
 3. test: contains classes tests 
 4. lib: contains the lib of the project

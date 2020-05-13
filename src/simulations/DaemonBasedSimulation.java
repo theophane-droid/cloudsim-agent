@@ -36,11 +36,12 @@ public class DaemonBasedSimulation extends SimulationRunner{
                 "",
                 ini.get("datacenter","nb_hosts", int.class),
                 ini.get("datacenter","nb_vms", int.class),
-                ini.get("datacenter","nb_cloudlets", int.class),
+                ini.get("cloudlets","nb_cloudlets", int.class),
                 ini.get("DaemonBased","mips_consuption", float.class),
                 ini.get("DaemonBased","lower_bound_ratio", float.class),
                 ini.get("DaemonBased","upper_bound_ratio", float.class),
                 ini.get("simulation","print_datacenter",boolean.class));
+        this.ini = ini;
     }
 
     public DaemonBasedSimulation(String name, String workload, String inputFolder, String outputFolder,
@@ -61,7 +62,7 @@ public class DaemonBasedSimulation extends SimulationRunner{
         List<AgentHost> hostList = NetworkHelper.createHostList(nbHosts);
         broker = Helper.createBroker();
         vmLists = Helper.createVmList(broker.getId(), nbVms);
-        cloudletList = NetworkHelper.createCloudletList(broker.getId(), nbCloudlets, vmLists);
+        cloudletList = Utils.createTheProperCloudletList(broker.getId(), nbCloudlets, vmLists, ini);
         System.out.println("cloudlet list size = " + cloudletList.size());
         // * we set the Scheduler cloudlet list (very important)
         Scheduler.cloudletsList = Utils.copyList(cloudletList);

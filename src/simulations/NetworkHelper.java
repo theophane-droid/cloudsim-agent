@@ -17,6 +17,7 @@ import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 import power.AgentSwitchPowerModel;
+import utils.Utils;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -147,13 +148,40 @@ public class NetworkHelper {
         Log.printLine("switch consumption : " + power_result.getSecond()/(3600*1000) + " kWh");
         Log.printLine("total: " + (power_result.getFirst()+power_result.getSecond())/(3600*1000) + " kWh");
     }
-    public static List<Cloudlet> createCloudletList(int brokerId, int nbCloudlet,List<Vm> vmList){
-        List<Cloudlet> cloudletList = RandomHelper.createCloudletList(brokerId, nbCloudlet);
-        for(int i=0;i<nbCloudlet; i++){
-            Vm vm = vmList.get(i%vmList.size());
-            cloudletList.get(i).setVmId(vm.getId());
+    public static List<Cloudlet> createCloudletList(int brokerId, int nbCloudlet,List<Vm> vmList, double mean) {
+        List<Cloudlet> list = new ArrayList();
+        long fileSize = 300L;
+        long seed = 1L;
+        long outputSize = 300L;
+        UtilizationModel utilizationModelNull = new UtilizationModelNull();
+
+        for (int i = 0; i < nbCloudlet; ++i) {
+            Cloudlet cloudlet;
+            cloudlet = new Cloudlet(i, (long) mean, 1, fileSize, outputSize, new UtilizationModelStochastic(seed * (long) i), utilizationModelNull, utilizationModelNull);
+            cloudlet.setUserId(brokerId);
+            Vm vm = vmList.get(i % vmList.size());
+            cloudlet.setVmId(vm.getId());
+            list.add(cloudlet);
         }
-        return cloudletList;
+        return list;
+    }
+
+    public static List<Cloudlet> createRandomizedCloudletList(int brokerId, int nbCloudlet, List<Vm> vmList, long meanCloudletLength, long stdDeviation){
+        List<Cloudlet> list = new ArrayList();
+        List<Long> values = Utils.generateRandomizedValues2(meanCloudletLength, stdDeviation, nbCloudlet);
+        long fileSize = 300L;
+        long seed = 1L;
+        long outputSize = 300L;
+        UtilizationModel utilizationModelNull = new UtilizationModelNull();
+        for(int i = 0; i < nbCloudlet; i++) {
+            Cloudlet cloudlet;
+            cloudlet = new Cloudlet(i, values.get(i), 1, fileSize, outputSize, new UtilizationModelStochastic(seed * (long) i), utilizationModelNull, utilizationModelNull);
+            cloudlet.setUserId(brokerId);
+            Vm vm = vmList.get(i%vmList.size());
+            cloudlet.setVmId(vm.getId());
+            list.add(cloudlet);
+        }
+        return list;
     }
 
     public static List<AgentHost> createHostList(int hostsNumber) {

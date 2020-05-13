@@ -38,7 +38,7 @@ public class RoutingTest {
         System.out.println(hostList);
         DatacenterBroker broker = Helper.createBroker();
         List<Vm> vmLists = Helper.createVmList(broker.getId(), 20);
-        List <Cloudlet> cloudletList = NetworkHelper.createCloudletList(broker.getId(), 10, vmLists);
+        List <Cloudlet> cloudletList = NetworkHelper.createCloudletList(broker.getId(), 10, vmLists, 100);
         agentDatacenter = NetworkHelper.createDatacenter("datacenter0", hostList, new PowerVmAllocationPolicyMigrationStaticThreshold(hostList, new PowerVmSelectionPolicyMinimumMigrationTime(), 0.7D));
         NetworkHelper.buildNetwork(10, agentDatacenter);
 

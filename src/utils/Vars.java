@@ -18,6 +18,9 @@ public class Vars {
     public static float DAEMON_UPPER_BOUND=-1;
     public static float DAEMON_LOWER_BOUND=-1;
     public static double MIPS_DAEMON_UTILIZATION = 100;
+    // * cloudlets section
+    public static double MEAN_CLOUDLET_LENGTH = 1000;
+    public static double STANDARD_CLOUDLET_DEVIATION = 100;
     public static void loadFromIniFile(Wini ini){
         SAFETY_PARAMETER = setDouble(ini,"SAFETY_PARAMETER".toLowerCase(), SAFETY_PARAMETER);
         POWER_MEASURE_INTERVAL = setDouble(ini,"POWER_MEASURE_INTERVAL".toLowerCase(),POWER_MEASURE_INTERVAL);
@@ -25,9 +28,8 @@ public class Vars {
         MIPS_DAEMON_UTILIZATION = setDouble(ini, "DaemonBased","MIPS_DAEMON_UTILIZATION".toLowerCase(), MIPS_DAEMON_UTILIZATION);
         MIPS_AGENT_UTILIZATION = setDouble(ini, "agent","MIPS_AGENT_UTILIZATION".toLowerCase(), MIPS_AGENT_UTILIZATION);
         BW_AGENT_UTILIZATION = setDouble(ini, "agent","BW_AGENT_UTILIZATION".toLowerCase(), BW_AGENT_UTILIZATION);
-        System.out.println(SAFETY_PARAMETER);
-        System.out.println(POWER_MEASURE_INTERVAL);
-        System.out.println(MEAN_CLOUDLET_BW_CONSUMPTION);
+        MEAN_CLOUDLET_LENGTH = setDouble(ini, "cloudlets", "MEAN_CLOUDLET_LENGTH".toLowerCase(), MEAN_CLOUDLET_LENGTH);
+        STANDARD_CLOUDLET_DEVIATION = setDouble(ini, "cloudlets", "STANDARD_CLOUDLET_DEVIATION".toLowerCase(), STANDARD_CLOUDLET_DEVIATION);
     }
     private static double setDouble(Wini ini, String k2, double val){
         double d = ini.get("vars", k2, Double.TYPE);

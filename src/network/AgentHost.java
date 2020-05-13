@@ -122,6 +122,7 @@ public class AgentHost extends PowerHostUtilizationHistory{
             if(isRunningDaemon){
                 checkDaemon();
             }
+            agentAsBeenRunning=false;
         }
         else
             powerConsumptionHistory.add(new Pair(CloudSim.clock(),0.d));
@@ -177,7 +178,6 @@ public class AgentHost extends PowerHostUtilizationHistory{
         }
         if(agentAsBeenRunning) {
             d += Vars.MIPS_AGENT_UTILIZATION / getTotalMips();
-            agentAsBeenRunning=false;
         }
         if(d>1)
             return 1;

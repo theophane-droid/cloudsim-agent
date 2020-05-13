@@ -1,10 +1,15 @@
 package utils;
 
+import jdk.swing.interop.SwingInterOpUtils;
 import network.AgentDatacenter;
 import network.AgentHost;
+import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.util.Pair;
+import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
+import org.ini4j.Wini;
+import simulations.NetworkHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,4 +54,84 @@ public class Utils {
             }
         }
     }
+    /**
+     * This method use the reverse normal law, to generate a set of value
+     * @param mean
+     * @param standardDeviation
+     * @param  numberOfValues
+     * @return the list of values
+     */
+    public static List<Long> generateRandomizedValues(double mean, double standardDeviation, int numberOfValues){
+        List<Long> result = new ArrayList<>();
+        NormalDistribution distribution = new NormalDistribution(mean, standardDeviation);
+        for(int i=0; i<numberOfValues; i++) {
+            result.add((long) distribution.sample());
+        }
+        return result;
+    }
+
+    /**
+     * @param list the related list
+     * @return the mean of a set of value
+     */
+    public static long mean1(List<Long> list){
+        long mean=0;
+        for(Long l: list)
+            mean+=l;
+        return mean/list.size();
+    }
+    public static double mean2(List<Double> list){
+        double mean=0;
+        for(Double l: list)
+            mean+=l;
+        return (long) (mean/list.size());
+    }
+    public static double stdDeviation(List<Double> list){
+        long mean = (long) mean2(list);
+        double variance = 0;
+        for(int i=0; i<list.size(); i++){
+            variance+=Math.pow(list.get(i)-mean,2);
+            System.out.println("v " + variance);
+        }
+        return variance/list.size();
+    }
+    /**
+     * This method use the reverse normal law, to generate a set of value
+     * @param mean
+     * @param standardDeviation
+     * @param  numberOfValues
+     * @return the list of values
+     */
+    public static List<Long> generateRandomizedValues2(double mean, double standardDeviation, int numberOfValues){
+        List<Long> result = new ArrayList<>();
+        List<Double> result0 = new ArrayList<>();
+        for(int i=0; i<numberOfValues; i++){
+            result0.add(Math.cos(14*i));
+        }
+        double var0 = stdDeviation(result0);
+        double A = standardDeviation/var0;
+        for(int i=0; i<numberOfValues; i++){
+            result.add((long) (A * result0.get(i)));
+        }
+        long moy0 = mean1(result);
+        double B = mean - moy0;
+        for(int i=0; i<numberOfValues; i++){
+            result.set(i, (long) (B+result.get(i)));
+        }
+        System.out.println(result);
+        return result;
+    }
+
+    public static List<Cloudlet> createTheProperCloudletList(int brokerId, int nbCloudlets, List<Vm> vmList,  Wini ini){
+        List<Cloudlet> list;
+        boolean isRandomized = ini.get("cloudlets", "randomize_cloudlet_length", Boolean.TYPE);
+        long mean = ini.get("cloudlets","mean_cloudlet_length", Long.TYPE);
+        long stdDeviation = ini.get("cloudlets","standard_cloudlet_deviation", Long.TYPE);
+        if(isRandomized)
+            list = NetworkHelper.createRandomizedCloudletList(brokerId, nbCloudlets, vmList, mean, stdDeviation);
+        else
+            list = NetworkHelper.createCloudletList(brokerId, nbCloudlets, vmList, mean);
+        return list;
+    }
+
 }

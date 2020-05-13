@@ -36,9 +36,10 @@ public class TimeBasedSimulation extends SimulationRunner {
                 "",
                 ini.get("datacenter","nb_hosts", int.class),
                 ini.get("datacenter","nb_vms", int.class),
-                ini.get("datacenter","nb_cloudlets", int.class),
+                ini.get("cloudlets","nb_cloudlets", int.class),
                 ini.get("TimeBased","repeating_time", double.class),
                 ini.get("simulation","print_datacenter",boolean.class));
+        this.ini = ini;
     }
 
     public TimeBasedSimulation(String name, String workload, String inputFolder, String outputFolder,
@@ -58,7 +59,7 @@ public class TimeBasedSimulation extends SimulationRunner {
         List<AgentHost> hostList = NetworkHelper.createHostList(nbHosts);
         broker = Helper.createBroker();
         vmLists = Helper.createVmList(broker.getId(), nbVms);
-        cloudletList = NetworkHelper.createCloudletList(broker.getId(), nbCloudlets, vmLists);
+        cloudletList = Utils.createTheProperCloudletList(broker.getId(), nbCloudlets, vmLists, ini);
         // * we set the Scheduler cloudlet list (very important)
         Scheduler.cloudletsList = Utils.copyList(cloudletList);
         agentDatacenter = NetworkHelper.createDatacenter("datacenter0", hostList, AgentPowerLocalRegressionPolicyMigration.createAgentPolicy(hostList), cloudletList);

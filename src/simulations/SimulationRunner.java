@@ -8,6 +8,7 @@ import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.examples.power.Constants;
 import org.cloudbus.cloudsim.examples.power.Helper;
+import org.ini4j.Wini;
 import utils.Utils;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public abstract class SimulationRunner {
     protected List<AgentHost> hostList;
     protected List<Cloudlet> cloudletList;
     protected List<Vm> vmLists;
+    protected Wini ini;
     protected AgentDatacenter agentDatacenter;
     protected DatacenterBroker broker;
     private String name;
