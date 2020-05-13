@@ -4,6 +4,7 @@ import algorithms.Action;
 import algorithms.Scheduler;
 import network.AgentDatacenter;
 import network.AgentHost;
+import org.apache.commons.math3.util.Pair;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.examples.power.Constants;
@@ -11,7 +12,9 @@ import org.cloudbus.cloudsim.examples.power.Helper;
 import org.ini4j.Wini;
 import utils.Utils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Runner wich allows to run Network simulations
@@ -49,11 +52,11 @@ public abstract class SimulationRunner {
      */
     public abstract void init();
 
-/**
-     * Start the simulation*/
-
-
-    public void start(){
+    /**
+     * Start the simulation
+     * @return a map which contains the simulations's result
+     */
+    public Map<String, Double> start(){
         System.out.println("start");
         broker.submitCloudletList(cloudletList);
         List<Vm> vmLists2 = Utils.copyList(vmLists);
@@ -73,7 +76,7 @@ public abstract class SimulationRunner {
 
         Log.setDisabled(false);
         Helper.printCloudletList(cloudletList);
-        NetworkHelper.printResults(
+        Pair<Double, Double> result = NetworkHelper.printResults(
                 agentDatacenter,
                 vmLists2,
                 lastClock,
@@ -81,6 +84,10 @@ public abstract class SimulationRunner {
                 Constants.OUTPUT_CSV,
                 outputFolder
                 );
+        Map<String, Double> m = new HashMap();
+        m.put("hosts_power",result.getFirst());
+        m.put("switchs_power",result.getSecond());
+        return m;
     }
 
     /**

@@ -135,8 +135,9 @@ public class NetworkHelper {
      * @param experimentName
      * @param outputCsv
      * @param outputFolder
+     * @return a pair for <HostConsumption, SwitchConsumption>
      */
-    public static void printResults(AgentDatacenter datacenter, List<Vm> vmList, double lastClock, String experimentName, boolean outputCsv, String outputFolder) {
+    public static Pair<Double, Double> printResults(AgentDatacenter datacenter, List<Vm> vmList, double lastClock, String experimentName, boolean outputCsv, String outputFolder) {
         Log.setDisabled(false);
         Log.printLine("\n\n********Simulation summary********");
         Log.printLine(datacenter.getHostList().size() + " hosts");
@@ -147,6 +148,7 @@ public class NetworkHelper {
         Log.printLine("host consumption : " + power_result.getFirst()/(3600*1000) + " kWh");
         Log.printLine("switch consumption : " + power_result.getSecond()/(3600*1000) + " kWh");
         Log.printLine("total: " + (power_result.getFirst()+power_result.getSecond())/(3600*1000) + " kWh");
+        return power_result;
     }
     public static List<Cloudlet> createCloudletList(int brokerId, int nbCloudlet,List<Vm> vmList, double mean) {
         List<Cloudlet> list = new ArrayList();

@@ -8,6 +8,7 @@ To run this project you need to add the following libraries :
 - Junit-4.12
 - mockito-all-1.9.5
 - ini4j
+- opencsv-5.1
 
 Others versions could works but didn't be tested. All the librairies are in the lib folder.
 

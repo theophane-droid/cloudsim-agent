@@ -1,5 +1,6 @@
 package utils;
 
+import com.opencsv.CSVWriter;
 import jdk.swing.interop.SwingInterOpUtils;
 import network.AgentDatacenter;
 import network.AgentHost;
@@ -11,8 +12,12 @@ import org.cloudbus.cloudsim.Vm;
 import org.ini4j.Wini;
 import simulations.NetworkHelper;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Utils {
     public static List copyList(List listToCopy){
@@ -91,7 +96,6 @@ public class Utils {
         double variance = 0;
         for(int i=0; i<list.size(); i++){
             variance+=Math.pow(list.get(i)-mean,2);
-            System.out.println("v " + variance);
         }
         return variance/list.size();
     }
@@ -134,4 +138,29 @@ public class Utils {
         return list;
     }
 
+    public static boolean writeResult(String outPath, List<Map<String, Double>> resultList, String variablesName) {
+        String[] headers = new String[]{variablesName, "power consumption (kWh)"};
+        CSVWriter writer;
+        try {
+            writer = new CSVWriter(new FileWriter(new File(outPath)));
+
+        } catch (IOException e) {
+            return false;
+        }
+        writer.writeNext(headers);
+        String[] line;
+        for(Map<String, Double> current : resultList){
+            double power = current.get("hosts_power") + current.get("switchs_power");
+            power/=(3600*1000);
+            double varValue = current.get("var");
+            line = new String[]{Double.toString(varValue), Double.toString(power)};
+            writer.writeNext(line);
+        }
+        try {
+            writer.close();
+        } catch (IOException e) {
+            return false;
+        }
+        return true;
+    }
 }
