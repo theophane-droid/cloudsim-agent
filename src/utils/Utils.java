@@ -1,9 +1,10 @@
 package utils;
 
+import algorithms.Agent;
 import com.opencsv.CSVWriter;
-import jdk.swing.interop.SwingInterOpUtils;
 import network.AgentDatacenter;
 import network.AgentHost;
+import network.AgentSwitch;
 import org.apache.commons.math3.distribution.NormalDistribution;
 import org.apache.commons.math3.util.Pair;
 import org.cloudbus.cloudsim.Cloudlet;
@@ -11,6 +12,7 @@ import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Vm;
 import org.ini4j.Wini;
 import simulations.NetworkHelper;
+import network.Port;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -51,12 +53,18 @@ public class Utils {
      */
     public static void printDatacenterState(AgentDatacenter dc, double clock){
         System.out.println(dc.getName() + " at " + clock);
+        System.out.println("==========Hosts==========");
         for(Host h1: dc.getHostList()){
             AgentHost  h = (AgentHost) h1;
             System.out.println("    host " + h.getId() + " : " + "( is active : " + h.isUp() + " )" + ", utilization = " + h.getUtilizationOfCpu());
             for(Vm v: h.getVmList()){
                 System.out.println("        vm " + v.getId());
             }
+        }
+        System.out.println("===========Switchs==========");
+        for(int i : dc.getAgentSwitchs().keySet()){
+            AgentSwitch a = dc.getAgentSwitchs().get(i);
+            System.out.println("    switch " + a.getName() + " ( is active : " + a.isActive() + " ) ");
         }
     }
     /**
@@ -122,7 +130,6 @@ public class Utils {
         for(int i=0; i<numberOfValues; i++){
             result.set(i, (long) (B+result.get(i)));
         }
-        System.out.println(result);
         return result;
     }
 
@@ -162,5 +169,11 @@ public class Utils {
             return false;
         }
         return true;
+    }
+    public static void addLink(AgentSwitch upSwitch, AgentSwitch downSwitch){
+        upSwitch.getDownSwitchConnexions().add(new Port(true, downSwitch));
+        downSwitch.getUpSwitchConnexions().add(new Port(true, upSwitch));
+        upSwitch.updateConnexions();
+        downSwitch.updateConnexions();
     }
 }

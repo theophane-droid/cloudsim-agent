@@ -50,7 +50,7 @@ public class NoAgentSimulation extends SimulationRunner {
         // * we set the Scheduler cloudlet list (very important)
         Scheduler.cloudletsList = Utils.copyList(cloudletList);
         agentDatacenter = NetworkHelper.createDatacenter("datacenter0", hostList, AgentPowerLocalRegressionPolicyMigration.createAgentPolicy(hostList), cloudletList);
-        NetworkHelper.buildNetwork(nbHosts, agentDatacenter);
+        NetworkHelper.buildNetwork(agentDatacenter);
 
         // * we sent the agent once
         //agentDatacenter.sendAgent();

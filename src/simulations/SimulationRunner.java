@@ -64,14 +64,22 @@ public abstract class SimulationRunner {
 
         if(printDatacenter)
             activeSimulationPrint();
-
-        double lastClock = CloudSim.startSimulation();
+        double lastClock = 0.d;
+        try {
+            lastClock = CloudSim.startSimulation();
+        }
+        catch (Exception e){
+            System.err.println("An expeption occurs with message : ");
+            e.printStackTrace();
+            System.out.println("Network state : ");
+            Utils.printDatacenterState(agentDatacenter, CloudSim.clock());
+            System.exit(-1) ;
+        }
         System.out.println("last clock : " + lastClock);
 
         List<Cloudlet> newList = broker.getCloudletReceivedList();
         Log.printLine("Received " + newList.size() + " cloudlets");
         CloudSim.stopSimulation();
-
 
 
         Log.setDisabled(false);

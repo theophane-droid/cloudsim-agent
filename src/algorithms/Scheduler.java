@@ -44,9 +44,7 @@ public class Scheduler extends SimEntity {
         for(Cloudlet c: cloudletsList){
             if(c.getStatus()!=Cloudlet.SUCCESS && c.getStatus()!=Cloudlet.FAILED && c.getStatus()!=Cloudlet.FAILED_RESOURCE_UNAVAILABLE)
                 return false;
-            //System.out.println(c.getStatus());
         }
-        System.out.println(cloudletsList);
         return true;
     }
 

@@ -28,9 +28,12 @@ public class AgentSwitch extends SimEntity {
     protected List<RawPacket> packetsRecieved;
     private List<Port> hostConnexions;
     private List<Port> upSwitchConnexions;
+    private List<Port> downSwitchConnexions;
     private boolean isActive = true;
     public Map<Integer, AgentHost> hostlist =  new HashMap<>();
     public List<AgentSwitch> uplinkswitches = new ArrayList<>();
+    public List<AgentSwitch> downlinkswitches = new ArrayList<>();
+    public boolean constant = false;
     private Map<Double, Pair<Double, Integer>> usageHistory = new HashMap<>();
     private Datacenter dc;
     private double switching_delay;
@@ -41,7 +44,6 @@ public class AgentSwitch extends SimEntity {
     // * is this var = true, the simulation should be DaemonBased
     private boolean isRunningDaemon = false;
     // * this var rpz a bandwitch consumption increase for a short time
-    private double bwIncrease;
 
     /**
      * Constructor for AgentSwitch
@@ -54,6 +56,7 @@ public class AgentSwitch extends SimEntity {
         packetsRecieved = new ArrayList<>();
         hostConnexions = new ArrayList<>();
         upSwitchConnexions = new ArrayList<>();
+        downSwitchConnexions = new ArrayList<>();
         powerConsumptionHistory = new ArrayList<>();
         this.nbPorts = nbPorts;
         this.dc=dc;
@@ -90,7 +93,7 @@ public class AgentSwitch extends SimEntity {
      */
     private void checkIfAgent(RawPacket packet){
         if(packet.getContent() instanceof Agent){
-            addToBwIncrease(Vars.BW_AGENT_UTILIZATION);
+            addToTraffic(Vars.BW_AGENT_UTILIZATION);
         }
     }
 
@@ -146,8 +149,22 @@ public class AgentSwitch extends SimEntity {
                 }
             }
         }
-        if(!hasBeenSended)
-            CloudSim.send(dc.getId(), uplinkswitches.get(0).getId(), switching_delay, CloudSimTags.Network_Event_UP, rawPacket);
+        if(!hasBeenSended) {
+            // * TODO: finir ça
+            if(isInSon(rawPacket.getIdDest(), rawPacket.getClassDest())){
+                List<AgentSwitch> sonsWichCanReachDest = getSonsWichContains(rawPacket.getIdDest(), rawPacket.getClassDest());
+                if(rawPacket.getContent() instanceof Agent)
+                    propagateDownBandwidthConsumtion(Vars.BW_AGENT_UTILIZATION, rawPacket.getIdDest(), rawPacket.getClassDest());
+                // * the first one commute the packet
+                CloudSim.send(dc.getId(), sonsWichCanReachDest.get(0).getId(), switching_delay, CloudSimTags.Network_Event_UP, rawPacket);
+            }
+            else{
+                // * we send the packet to the upper switch and we increase the traffic of the upper switch (if the content is an agent)
+                if(rawPacket.getContent() instanceof Agent)
+                    uplinkswitches.get(0).addToTraffic(getTraffic()+Vars.BW_AGENT_UTILIZATION);
+                CloudSim.send(dc.getId(), uplinkswitches.get(0).getId(), switching_delay, CloudSimTags.Network_Event_UP, rawPacket);
+            }
+        }
     }
 
     /**
@@ -163,6 +180,11 @@ public class AgentSwitch extends SimEntity {
         for(Port p: upSwitchConnexions){
             if(p.isOpen())
                 uplinkswitches.add((AgentSwitch) p.getReliedObject());
+        }
+        for(Port p: downSwitchConnexions){
+            if (p.isOpen()){
+                downlinkswitches.add((AgentSwitch)p.getReliedObject());
+            }
         }
     }
 
@@ -190,6 +212,17 @@ public class AgentSwitch extends SimEntity {
 
     public List<Port> getUpSwitchConnexions() {
         return upSwitchConnexions;
+    }
+
+    public List<Port> getAllSwitchConnexions(){
+        List<Port> l = new ArrayList<>();
+        l.addAll(downSwitchConnexions);
+        l.addAll(upSwitchConnexions);
+        return l;
+    }
+
+    public List<Port> getDownSwitchConnexions() {
+        return downSwitchConnexions;
     }
 
     public void refreshUpSwitchConnexions(List<RawPacket> packetsToSort) {
@@ -221,14 +254,11 @@ public class AgentSwitch extends SimEntity {
         int key=0;
         for (Iterator<Integer> i = hostlist.keySet().iterator(); i.hasNext();) {
             key = i.next();
-            traffic += hostlist.get(key).getMeanTraffic();
+            traffic += hostlist.get(key).getTraffic();
         }
-        traffic+=bwIncrease;
-        bwIncrease=0;
     }
     public void updatePowerConsumption() {
         updateConnexions();
-        updateTraffic();
         if(isActive)
             powerConsumptionHistory.add(new Pair<>(CloudSim.clock(), powerModel.getPowerConsumption(this)));
         else
@@ -287,7 +317,78 @@ public class AgentSwitch extends SimEntity {
      * This method allow user to increase momentarily the Bw consumption
      * @param d
      */
-    public void addToBwIncrease(double d){
-        bwIncrease+=d;
+    public void addToTraffic(double d){
+        traffic+=d;
+    }
+
+    /**
+     * This method is used to propagate up the traffic in the network, from a cloudlet on an host to others switchs
+     * @param consumption consumption
+     */
+    public void propagateUpBandwidthConsumtion(double consumption){
+        List<AgentSwitch> reachablesSwitchs = new ArrayList<>();
+        for(Port p: getUpSwitchConnexions()){
+            if(p.isOpen() && ((AgentSwitch)p.getReliedObject()).isActive()){
+                reachablesSwitchs.add((AgentSwitch) p.getReliedObject());
+            }
+        }
+        for(AgentSwitch sw: reachablesSwitchs){
+            sw.propagateUpBandwidthConsumtion(consumption/reachablesSwitchs.size());
+        }
+        traffic+=consumption;
+    }
+
+    /**
+     * This method is used to propagate down the traffic in the network, for agentswitch wich can reach an host
+     * @param consumption consumption
+     * @param idDest the id of the host
+     * @param classDest the class of the host
+     */
+    public void propagateDownBandwidthConsumtion(double consumption, int idDest, Class classDest){
+        List<AgentSwitch> reachablesSwitchs = getSonsWichContains(idDest, classDest);
+        for(AgentSwitch sw: reachablesSwitchs)
+            sw.addToTraffic(consumption/reachablesSwitchs.size());
+        traffic+=consumption;
+    }
+
+    /**
+     * This method return true if a switch or an host is present in sons
+     * @param id the id of the entity
+     * @param classe the class of the entity
+     * @return true if h is present
+     */
+    protected boolean isInSon(int id, Class classe) {
+        if(id==getId() && classe==getClass())
+            return true;
+        if(classe==AgentHost.class) {
+            for (int i : hostlist.keySet()) {
+                if(i == id)
+                    return true;
+            }
+        }
+        for (AgentSwitch son : downlinkswitches){
+            if (son.isInSon(id, classe))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * This method return the list of the downer AgentSwitch wich contains an AgentHost (for which the Port is open and the switch is up)
+     * @param id the id of the AgentHost
+     * @param classe the classe of the AgentHost
+     * @return the list
+     */
+    protected List<AgentSwitch> getSonsWichContains(int id, Class classe){
+        List<AgentSwitch> r = new ArrayList<>();
+        for(AgentSwitch a: downlinkswitches){
+            if(a.isInSon(id, classe) && a.isActive())
+                r.add(a);
+        }
+        return r;
+    }
+
+    public void setTraffic(double traffic) {
+        this.traffic = traffic;
     }
 }

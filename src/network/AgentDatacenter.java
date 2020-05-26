@@ -140,17 +140,18 @@ public class AgentDatacenter extends PowerDatacenter {
         return new Pair(power_host, power_switch);
     }
     public void updatePowerConsumption(){
+        // * first we reinit all the traffic consumption
+        for(int i: getAgentSwitchs().keySet()){
+            getAgentSwitchs().get(i).setTraffic(0.d);
+        }
+        // * then we calc the host power consumption, and propagate the traffic costed by hosts
+        for(Host host : getHostList()){
+            ((AgentHost)host).updatePowerConsumption();
+            ((AgentHost)host).updateTrafficPropagation();
+        }
         for(int i: getAgentSwitchs().keySet()){
             getAgentSwitchs().get(i).updatePowerConsumption();;
         }
-        for(Host host : getHostList()){
-            ((AgentHost)host).updatePowerConsumption();
-        }
-    }
-
-    @Override
-    protected void processVmDestroy(SimEvent ev, boolean ack) {
-        super.processVmDestroy(ev, ack);
     }
 
     @Override

@@ -68,7 +68,7 @@ public class DaemonBasedSimulation extends SimulationRunner{
         // * we set the Scheduler cloudlet list (very important)
         Scheduler.cloudletsList = Utils.copyList(cloudletList);
         agentDatacenter = NetworkHelper.createDatacenter("datacenter0", hostList, AgentPowerLocalRegressionPolicyMigration.createAgentPolicy(hostList), cloudletList);
-        NetworkHelper.buildNetwork(nbHosts, agentDatacenter);
+        NetworkHelper.buildNetwork(agentDatacenter);
         // * now we start the daemon on every host
         for(AgentHost host: hostList){
             host.startDaemon();

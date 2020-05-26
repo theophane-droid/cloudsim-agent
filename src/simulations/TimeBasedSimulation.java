@@ -63,7 +63,7 @@ public class TimeBasedSimulation extends SimulationRunner {
         // * we set the Scheduler cloudlet list (very important)
         Scheduler.cloudletsList = Utils.copyList(cloudletList);
         agentDatacenter = NetworkHelper.createDatacenter("datacenter0", hostList, AgentPowerLocalRegressionPolicyMigration.createAgentPolicy(hostList), cloudletList);
-        NetworkHelper.buildNetwork(nbHosts, agentDatacenter);
+        NetworkHelper.buildNetwork(agentDatacenter);
         Action action = new Action() {
             private AgentDatacenter dc = agentDatacenter;
             @Override

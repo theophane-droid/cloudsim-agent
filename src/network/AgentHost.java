@@ -1,13 +1,10 @@
 package network;
 
 import algorithms.Agent;
+import org.cloudbus.cloudsim.*;
 import utils.Utils;
 import utils.Vars;
 import org.apache.commons.math3.util.Pair;
-import org.cloudbus.cloudsim.Host;
-import org.cloudbus.cloudsim.Pe;
-import org.cloudbus.cloudsim.Vm;
-import org.cloudbus.cloudsim.VmScheduler;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.core.CloudSimTags;
 import org.cloudbus.cloudsim.power.PowerHostUtilizationHistory;
@@ -74,6 +71,8 @@ public class AgentHost extends PowerHostUtilizationHistory{
      * @param rawPacket
      */
     public void sendRawPaquet(RawPacket rawPacket){
+        if(rawPacket.getContent() instanceof Agent)
+            sw.addToTraffic(Vars.BW_AGENT_UTILIZATION);
         CloudSim.send(getDatacenter().getId(), sw.getId(), 100, CloudSimTags.Network_Event_UP, rawPacket);
     }
 
@@ -101,7 +100,7 @@ public class AgentHost extends PowerHostUtilizationHistory{
     }
 
 
-    public double getMeanTraffic() {
+    public double getTraffic() {
         updateBwConsumption();
         return bwConsumption;
     }
@@ -109,7 +108,7 @@ public class AgentHost extends PowerHostUtilizationHistory{
     private void updateBwConsumption() {
         bwConsumption=0;
         for(Vm ignored : getVmList())
-            bwConsumption+= Vars.MEAN_CLOUDLET_BW_CONSUMPTION;
+            bwConsumption+= Vars.MEAN_CLOUDLET_BW_CONSUMPTION*ignored.getCloudletScheduler().runningCloudlets();
     }
 
     public void setSw(AgentSwitch sw) {
@@ -182,5 +181,13 @@ public class AgentHost extends PowerHostUtilizationHistory{
         if(d>1)
             return 1;
         return d;
+    }
+
+    public void updateTrafficPropagation() {
+        int nbCloudlets = 0;
+        for(Vm v : getVmList()){
+            nbCloudlets+= v.getCloudletScheduler().runningCloudlets();
+        }
+        sw.propagateUpBandwidthConsumtion(Vars.MEAN_CLOUDLET_BW_CONSUMPTION*nbCloudlets);
     }
 }

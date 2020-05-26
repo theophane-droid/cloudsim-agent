@@ -63,7 +63,8 @@ public class Agent {
      */
     public boolean action(AgentSwitch sw){
         boolean modification = false;
-        List<Pair<Boolean, Port>> list = sw.sortUsedAndUnusedConnexions();
+        // TODO: uncomment that
+/*        List<Pair<Boolean, Port>> list = sw.sortUsedAndUnusedConnexions();
         int nbHostUp = 0;
         for(Pair<Boolean, Port> p: list){
             modification = p.getFirst() != p.getSecond().isOpen() || modification;
@@ -72,7 +73,7 @@ public class Agent {
             p.getSecond().setOpen(p.getFirst());
         }
         modification = nbHostUp!=0 != sw.isActive() || modification;
-        sw.setIsActive(nbHostUp!=0);
+        sw.setIsActive(nbHostUp!=0);*/
         sw.updateConnexions();
         return modification;
     }

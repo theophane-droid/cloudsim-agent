@@ -1,5 +1,7 @@
 package simulations;
 
+import algorithms.Agent;
+import jdk.jshell.execution.Util;
 import network.AgentDatacenter;
 import network.AgentHost;
 import network.AgentSwitch;
@@ -92,7 +94,7 @@ public class NetworkHelper {
      * @param numhost
      * @param dc
      */
-    public static void buildNetwork(int numhost, AgentDatacenter dc) {
+    public static void buildNetwork2(int numhost, AgentDatacenter dc) {
 
         int length = (int)Math.ceil(numhost/NetworkConstants.EdgeSwitchPort);
         AgentSwitch agentSwitch[] = new AgentSwitch[length];
@@ -125,6 +127,71 @@ public class NetworkHelper {
             AgentHost h= (AgentHost)h1;
         }
 
+    }
+    /**
+     * Add switches to the datacenter
+     * @param dc the related datacenter
+     */
+    public static void buildNetwork(AgentDatacenter dc) {
+        AgentSwitch router = new AgentSwitch(dc, 24, "router", AgentSwitchPowerModel.CISCO_2960X, 4000);
+        AgentSwitch core1 = new AgentSwitch(dc, 24, "core1", AgentSwitchPowerModel.CISCO_2960X, 4000);
+        AgentSwitch core2 = new AgentSwitch(dc, 24, "core2", AgentSwitchPowerModel.CISCO_2960X, 4000);
+        router.constant = true;
+        core1.constant = true;
+        core2.constant = true;
+        AgentSwitch aggregation1 = new AgentSwitch(dc, 24, "aggregation1", AgentSwitchPowerModel.CISCO_2960X, 4000);
+        AgentSwitch aggregation2 = new AgentSwitch(dc, 24, "aggregation2", AgentSwitchPowerModel.CISCO_2960X, 4000);
+        AgentSwitch aggregation3 = new AgentSwitch(dc, 24, "aggregation3", AgentSwitchPowerModel.CISCO_2960X, 4000);
+        AgentSwitch aggregation4 = new AgentSwitch(dc, 24, "aggregation4", AgentSwitchPowerModel.CISCO_2960X, 4000);
+        AgentSwitch access1 = new AgentSwitch(dc, 24, "access1", AgentSwitchPowerModel.CISCO_2960X, 4000);
+        AgentSwitch access2 = new AgentSwitch(dc, 24, "access2", AgentSwitchPowerModel.CISCO_2960X, 4000);
+        AgentSwitch access3 = new AgentSwitch(dc, 24, "access3", AgentSwitchPowerModel.CISCO_2960X, 4000);
+        AgentSwitch access4 = new AgentSwitch(dc, 24, "access4", AgentSwitchPowerModel.CISCO_2960X, 4000);
+        AgentSwitch access5 = new AgentSwitch(dc, 24, "access5", AgentSwitchPowerModel.CISCO_2960X, 4000);
+        AgentSwitch access6 = new AgentSwitch(dc, 24, "access6", AgentSwitchPowerModel.CISCO_2960X, 4000);
+
+        // * we're purposely not putting the router in the list
+        dc.getAgentSwitchs().put(core1.getId(), core1);
+        dc.getAgentSwitchs().put(core2.getId(), core2);
+        dc.getAgentSwitchs().put(aggregation1.getId(), aggregation1);
+        dc.getAgentSwitchs().put(aggregation2.getId(), aggregation2);
+        dc.getAgentSwitchs().put(aggregation3.getId(), aggregation3);
+        dc.getAgentSwitchs().put(aggregation4.getId(), aggregation4);
+        dc.getAgentSwitchs().put(access1.getId(), access1);
+        dc.getAgentSwitchs().put(access2.getId(), access2);
+        dc.getAgentSwitchs().put(access3.getId(), access3);
+        dc.getAgentSwitchs().put(access4.getId(), access4);
+        dc.getAgentSwitchs().put(access5.getId(), access5);
+        dc.getAgentSwitchs().put(access6.getId(), access6);
+
+        Utils.addLink(router, core1);
+        Utils.addLink(router, core2);
+        Utils.addLink(core1, aggregation1);
+        Utils.addLink(core1, aggregation2);
+        Utils.addLink(core1, aggregation3);
+        Utils.addLink(core1, aggregation4);
+        Utils.addLink(core2, aggregation1);
+        Utils.addLink(core2, aggregation2);
+        Utils.addLink(core2, aggregation3);
+        Utils.addLink(core2, aggregation4);
+        Utils.addLink(aggregation1, access1);
+        Utils.addLink(aggregation1, access2);
+        Utils.addLink(aggregation1, access3);
+        Utils.addLink(aggregation2, access1);
+        Utils.addLink(aggregation2, access2);
+        Utils.addLink(aggregation2, access3);
+        Utils.addLink(aggregation3, access4);
+        Utils.addLink(aggregation3, access5);
+        Utils.addLink(aggregation3, access6);
+        Utils.addLink(aggregation4, access4);
+        Utils.addLink(aggregation4, access5);
+        Utils.addLink(aggregation4, access6);
+        AgentSwitch access[] = new AgentSwitch[]{access1, access2, access3, access4, access5, access6};
+
+        for(int i=0; i<dc.getHostList().size(); i++){
+            access[i%6].getHostConnexions().add(new Port(true, dc.getHostList().get(i)));
+            ((AgentHost)dc.getHostList().get(i)).setSw(access[i%6]);
+        }
     }
 
     /**
