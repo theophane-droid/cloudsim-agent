@@ -6,7 +6,10 @@ import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.power.*;
 import utils.Vars;
 
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This class makes easier to create the policy and correct a bug in CloudSim (using this class)
@@ -38,5 +41,34 @@ public class AgentPowerLocalRegressionPolicyMigration extends PowerVmAllocationP
          double power = 0.0D;
          power = host.getPowerModel().getPower(this.getMaxUtilizationAfterAllocation(host, vm));
          return power;
+    }
+
+    public PowerHost findHostForVm(Vm vm, Set<? extends Host> excludedHosts) {
+        double minPower = 1.7976931348623157E308D;
+        PowerHost allocatedHost = null;
+        Iterator i$ = this.getHostList().iterator();
+
+        while(true) {
+            PowerHost host;
+            do {
+                if (!i$.hasNext()) {
+                    return allocatedHost;
+                }
+
+                host = (PowerHost)i$.next();
+            } while(!host.isSuitableForVm(vm) || this.isHostOverUtilizedAfterAllocation(host, vm));
+
+            try {
+                double powerAfterAllocation = this.getPowerAfterAllocation(host, vm);
+                if (powerAfterAllocation != -1.0D) {
+                    double powerDiff = powerAfterAllocation - host.getPower();
+                    if (powerDiff < minPower) {
+                        minPower = powerDiff;
+                        allocatedHost = host;
+                    }
+                }
+            } catch (Exception var12) {
+            }
+        }
     }
 }

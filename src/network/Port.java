@@ -7,7 +7,7 @@ package network;
  */
 public class Port {
     private boolean isOpen;
-    private Object reliedObject;
+    private final Object reliedObject;
 
     public Port(boolean isOpen, Object reliedObject) {
         this.isOpen = isOpen;

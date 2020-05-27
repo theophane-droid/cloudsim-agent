@@ -8,6 +8,7 @@ import org.apache.commons.math3.util.Pair;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.examples.power.Constants;
 import org.cloudbus.cloudsim.network.datacenter.*;
+import org.cloudbus.cloudsim.power.PowerVm;
 import org.cloudbus.cloudsim.power.PowerVmAllocationPolicyMigrationAbstract;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
@@ -253,11 +254,11 @@ public class NetworkHelper {
             int hostType = i % 2;
             List<Pe> peList = new ArrayList();
 
-            for(int j = 0; j < Constants.HOST_PES[hostType]; ++j) {
+            for(int j = 0; j < 6; ++j) {
                 peList.add(new Pe(j, new PeProvisionerSimple(Constants.HOST_MIPS[hostType])));
             }
 
-            hostList.add(new AgentHost(i, new RamProvisionerSimple(Constants.HOST_RAM[hostType]), new BwProvisionerSimple(10000000000L), 100000000000L, peList, new VmSchedulerTimeSharedOverSubscription(peList), Constants.HOST_POWER[hostType]));
+            hostList.add(new AgentHost(i, new RamProvisionerSimple(8192), new BwProvisionerSimple(10000000000L), 100000000000L, peList, new VmSchedulerTimeSharedOverSubscription(peList), Constants.HOST_POWER[hostType]));
         }
 
         return hostList;
