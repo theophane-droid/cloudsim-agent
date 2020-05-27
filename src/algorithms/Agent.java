@@ -82,12 +82,7 @@ public class Agent {
             }
         }
         else if(!sw.isCore()) {
-            if (sw.getPowerConsumptionHistory().size() > 0)
-                System.out.println("utilization : " + sw.getUtilization() + " => " + sw.getName());
-            System.out.println(Vars.DAEMON_SWITCH_LOWER_BOUND);
-            if (sw.getUtilization() < Vars.DAEMON_SWITCH_LOWER_BOUND && sw.getPowerConsumptionHistory().size() != 0)
-                System.out.println("shut down switch " + sw.getName());
-            modification = (sw.getUtilization() < Vars.DAEMON_SWITCH_LOWER_BOUND && sw.getPowerConsumptionHistory().size() != 0) != sw.isActive() || modification;
+            modification = (sw.getUtilization() < Vars.DAEMON_SWITCH_LOWER_BOUND && sw.getPowerConsumptionHistory().size() != 0) != sw.isActive();
             sw.setIsActive((sw.getUtilization() >= Vars.DAEMON_SWITCH_LOWER_BOUND && sw.getPowerConsumptionHistory().size() != 0));
         }
         sw.updateConnexions();

@@ -265,7 +265,8 @@ public class AgentSwitch extends SimEntity {
             powerConsumptionHistory.add(new Pair<>(CloudSim.clock(), powerModel.getPowerConsumption(this)));
         else
             powerConsumptionHistory.add(new Pair<>(CloudSim.clock(),0.d));
-        checkDaemon();
+        if(isActive && isRunningDaemon)
+            checkDaemon();
     }
 
     private boolean checkDaemon() {

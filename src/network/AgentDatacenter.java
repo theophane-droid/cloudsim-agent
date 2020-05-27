@@ -91,8 +91,7 @@ public class AgentDatacenter extends PowerDatacenter {
                 if (!this.isDisableMigrations()) {
                     AgentHost h1 = (AgentHost) getHostList().get(0);
                     for (Host h : getHostList()) {
-                        if(((AgentHost)h).isUp())
-                            sendAgentTo(h1, h);
+                        sendAgentTo(h1, h);
                     }
                     for(int id: getAgentSwitchs().keySet()){
                         sendAgentTo(h1, getAgentSwitchs().get(id));
