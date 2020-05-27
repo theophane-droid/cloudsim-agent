@@ -160,9 +160,11 @@ public class AgentSwitch extends SimEntity {
             }
             else{
                 // * we send the packet to the upper switch and we increase the traffic of the upper switch (if the content is an agent)
-                if(rawPacket.getContent() instanceof Agent)
-                    uplinkswitches.get(0).addToTraffic(getTraffic()+Vars.BW_AGENT_UTILIZATION);
-                CloudSim.send(dc.getId(), uplinkswitches.get(0).getId(), switching_delay, CloudSimTags.Network_Event_UP, rawPacket);
+                if(!getName().equals("router")){
+                    if(rawPacket.getContent() instanceof Agent)
+                        uplinkswitches.get(0).addToTraffic(getTraffic()+Vars.BW_AGENT_UTILIZATION);
+                    CloudSim.send(dc.getId(), uplinkswitches.get(0).getId(), switching_delay, CloudSimTags.Network_Event_UP, rawPacket);
+                }
             }
         }
     }
@@ -301,13 +303,13 @@ public class AgentSwitch extends SimEntity {
      * If you call this method, that activates the daemon wich will call the Agent under lower bound and overhead upper bound of cpu utilization
      */
     public void startDaemon(){
-        if(Vars.DAEMON_LOWER_BOUND<0 || Vars.DAEMON_LOWER_BOUND>1){
+        if(Vars.DAEMON_HOST_LOWER_BOUND <0 || Vars.DAEMON_HOST_LOWER_BOUND >1){
             throw new RuntimeException("Vars.DAEMON_LOWER_SHOULD be between 0 and 1, check the simulation.ini file");
         }
-        if(Vars.DAEMON_UPPER_BOUND<0 || Vars.DAEMON_UPPER_BOUND>1){
+        if(Vars.DAEMON_HOST_UPPER_BOUND <0 || Vars.DAEMON_HOST_UPPER_BOUND >1){
             throw new RuntimeException("Vars.DAEMON_UPPER_BOUND be between 0 and 1, check the simulation.ini file");
         }
-        if(Vars.DAEMON_UPPER_BOUND<=Vars.DAEMON_LOWER_BOUND){
+        if(Vars.DAEMON_HOST_UPPER_BOUND <=Vars.DAEMON_HOST_LOWER_BOUND){
             throw new RuntimeException("Vars.DAEMON_UPPER_BOUND should be greater that Vars.DAEMON_LOWER_BOUND, check the simulation.ini file");
         }
         isRunningDaemon = true;
@@ -367,7 +369,7 @@ public class AgentSwitch extends SimEntity {
             }
         }
         for (AgentSwitch son : downlinkswitches){
-            if (son.isInSon(id, classe))
+            if (son.isActive() && son.isInSon(id, classe))
                 return true;
         }
         return false;
@@ -386,6 +388,21 @@ public class AgentSwitch extends SimEntity {
                 r.add(a);
         }
         return r;
+    }
+
+    /**
+     * @return true if it's an access switch
+     */
+    public boolean isAccess(){
+        return getName().contains("access");
+    }
+
+    public boolean isCore(){
+        return getName().contains("core");
+    }
+
+    public double getUtilization(){
+        return traffic/bandwidth;
     }
 
     public void setTraffic(double traffic) {

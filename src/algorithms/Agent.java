@@ -11,6 +11,7 @@ import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmAllocationPolicy;
 import org.cloudbus.cloudsim.core.CloudSim;
 import org.cloudbus.cloudsim.power.PowerHost;
+import utils.Vars;
 
 import java.util.Iterator;
 import java.util.List;
@@ -63,17 +64,32 @@ public class Agent {
      */
     public boolean action(AgentSwitch sw){
         boolean modification = false;
-        // TODO: uncomment that
-/*        List<Pair<Boolean, Port>> list = sw.sortUsedAndUnusedConnexions();
-        int nbHostUp = 0;
-        for(Pair<Boolean, Port> p: list){
-            modification = p.getFirst() != p.getSecond().isOpen() || modification;
-            if(p.getFirst())
-                nbHostUp+=1;
-            p.getSecond().setOpen(p.getFirst());
+        if(sw.isAccess()){
+            List<Pair<Boolean, Port>> m = sw.sortUsedAndUnusedConnexions();
+            boolean allPortDown = true;
+            for(Pair<Boolean, Port> p: m){
+                if(p.getFirst()) {
+                    allPortDown = false;
+                    break;
+                }
+            }
+            modification = sw.isActive()==allPortDown;
+            sw.setIsActive(!allPortDown);
+            for (Pair<Boolean, Port> p : m) {
+                p.getSecond().setOpen(p.getFirst());
+                modification=p.getFirst()!=p.getSecond().isOpen() || modification;
+                p.getSecond().setOpen(p.getFirst());
+            }
         }
-        modification = nbHostUp!=0 != sw.isActive() || modification;
-        sw.setIsActive(nbHostUp!=0);*/
+        else if(!sw.isCore()) {
+            if (sw.getPowerConsumptionHistory().size() > 0)
+                System.out.println("utilization : " + sw.getUtilization() + " => " + sw.getName());
+            System.out.println(Vars.DAEMON_SWITCH_LOWER_BOUND);
+            if (sw.getUtilization() < Vars.DAEMON_SWITCH_LOWER_BOUND && sw.getPowerConsumptionHistory().size() != 0)
+                System.out.println("shut down switch " + sw.getName());
+            modification = (sw.getUtilization() < Vars.DAEMON_SWITCH_LOWER_BOUND && sw.getPowerConsumptionHistory().size() != 0) != sw.isActive() || modification;
+            sw.setIsActive((sw.getUtilization() >= Vars.DAEMON_SWITCH_LOWER_BOUND && sw.getPowerConsumptionHistory().size() != 0));
+        }
         sw.updateConnexions();
         return modification;
     }

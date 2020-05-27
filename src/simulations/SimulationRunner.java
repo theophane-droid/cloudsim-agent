@@ -71,7 +71,6 @@ public abstract class SimulationRunner {
         catch (Exception e){
             System.err.println("An expeption occurs with message : ");
             e.printStackTrace();
-            System.out.println("Network state : ");
             Utils.printDatacenterState(agentDatacenter, CloudSim.clock());
             System.exit(-1) ;
         }

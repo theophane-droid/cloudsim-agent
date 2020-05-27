@@ -14,13 +14,17 @@ public class Vars {
     public static double SAFETY_PARAMETER = 0.7;
     public static double POWER_MEASURE_INTERVAL = 100;
     public static double MEAN_CLOUDLET_BW_CONSUMPTION = 200;
+    // * followings can be changed from the Bounds section
+    public static float DAEMON_HOST_UPPER_BOUND =-1;
+    public static float DAEMON_HOST_LOWER_BOUND =-1;
+    public static float DAEMON_SWITCH_UPPER_BOUND =-1;
+    public static float DAEMON_SWITCH_LOWER_BOUND =-1;
     // * followings can be changed from the DaemonBased section
-    public static float DAEMON_UPPER_BOUND=-1;
-    public static float DAEMON_LOWER_BOUND=-1;
     public static double MIPS_DAEMON_UTILIZATION = 100;
     // * cloudlets section
     public static double MEAN_CLOUDLET_LENGTH = 1000;
     public static double STANDARD_CLOUDLET_DEVIATION = 100;
+    // * switch section
     public static void loadFromIniFile(Wini ini){
         SAFETY_PARAMETER = setDouble(ini,"SAFETY_PARAMETER".toLowerCase(), SAFETY_PARAMETER);
         POWER_MEASURE_INTERVAL = setDouble(ini,"POWER_MEASURE_INTERVAL".toLowerCase(),POWER_MEASURE_INTERVAL);
@@ -30,6 +34,14 @@ public class Vars {
         BW_AGENT_UTILIZATION = setDouble(ini, "agent","BW_AGENT_UTILIZATION".toLowerCase(), BW_AGENT_UTILIZATION);
         MEAN_CLOUDLET_LENGTH = setDouble(ini, "cloudlets", "MEAN_CLOUDLET_LENGTH".toLowerCase(), MEAN_CLOUDLET_LENGTH);
         STANDARD_CLOUDLET_DEVIATION = setDouble(ini, "cloudlets", "STANDARD_CLOUDLET_DEVIATION".toLowerCase(), STANDARD_CLOUDLET_DEVIATION);
+        DAEMON_HOST_UPPER_BOUND = setFloat(ini, "Bounds", "upper_host_bound_ratio", DAEMON_HOST_UPPER_BOUND);
+        DAEMON_HOST_LOWER_BOUND = setFloat(ini, "Bounds","lower_host_bound_ratio", DAEMON_HOST_LOWER_BOUND);
+        DAEMON_SWITCH_UPPER_BOUND = setFloat(ini, "Bounds", "upper_switch_bound_ratio", DAEMON_SWITCH_UPPER_BOUND);
+        DAEMON_SWITCH_LOWER_BOUND = setFloat(ini, "Bounds", "lower_switch_bound_ratio", DAEMON_SWITCH_LOWER_BOUND);
+        System.out.println("1 : " + DAEMON_SWITCH_LOWER_BOUND);
+        System.out.println("2 : " + DAEMON_SWITCH_UPPER_BOUND);
+        System.out.println("3 : " + DAEMON_HOST_LOWER_BOUND);
+        System.out.println("4 : " + DAEMON_HOST_UPPER_BOUND);
     }
     private static double setDouble(Wini ini, String k2, double val){
         double d = ini.get("vars", k2, Double.TYPE);
@@ -45,11 +57,12 @@ public class Vars {
         else
             return val;
     }
-    private static float setFloat(Wini ini, String k1, String k2){
-        float f = ini.get("vars", k2, Float.TYPE);
+    private static float setFloat(Wini ini, String k1, String k2, float val){
+        System.out.println("set float " + k1 + " " + k2 );
+        float f = ini.get(k1, k2, Float.TYPE);
         if(Math.abs(f)>0.0001)
             return f;
         else
-            return 0;
+            return val;
     }
 }

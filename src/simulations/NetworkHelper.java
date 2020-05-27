@@ -1,7 +1,5 @@
 package simulations;
 
-import algorithms.Agent;
-import jdk.jshell.execution.Util;
 import network.AgentDatacenter;
 import network.AgentHost;
 import network.AgentSwitch;
@@ -9,11 +7,7 @@ import network.Port;
 import org.apache.commons.math3.util.Pair;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.examples.power.Constants;
-import org.cloudbus.cloudsim.examples.power.Helper;
-import org.cloudbus.cloudsim.examples.power.random.RandomConstants;
-import org.cloudbus.cloudsim.examples.power.random.RandomHelper;
 import org.cloudbus.cloudsim.network.datacenter.*;
-import org.cloudbus.cloudsim.power.PowerHost;
 import org.cloudbus.cloudsim.power.PowerVmAllocationPolicyMigrationAbstract;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
@@ -24,7 +18,6 @@ import utils.Utils;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Class wich Help to build simulations quickly
@@ -100,7 +93,7 @@ public class NetworkHelper {
         AgentSwitch agentSwitch[] = new AgentSwitch[length];
 
         for (int i = 0; i < length; i++) {
-            agentSwitch[i] = new AgentSwitch(dc,24, "Edge_"+i, AgentSwitchPowerModel.CISCO_2960X, 4000);
+            agentSwitch[i] = new AgentSwitch(dc,24, "Edge_"+i, AgentSwitchPowerModel.CISCO_2960X, 10000);
             dc.getAgentSwitchs().put(agentSwitch[i].getId(), agentSwitch[i]);
         }
         for(int i=0; i<length; i++){
@@ -133,22 +126,22 @@ public class NetworkHelper {
      * @param dc the related datacenter
      */
     public static void buildNetwork(AgentDatacenter dc) {
-        AgentSwitch router = new AgentSwitch(dc, 24, "router", AgentSwitchPowerModel.CISCO_2960X, 4000);
-        AgentSwitch core1 = new AgentSwitch(dc, 24, "core1", AgentSwitchPowerModel.CISCO_2960X, 4000);
-        AgentSwitch core2 = new AgentSwitch(dc, 24, "core2", AgentSwitchPowerModel.CISCO_2960X, 4000);
+        AgentSwitch router = new AgentSwitch(dc, 24, "router", AgentSwitchPowerModel.CISCO_2960X, 10000);
+        AgentSwitch core1 = new AgentSwitch(dc, 24, "core1", AgentSwitchPowerModel.CISCO_2960X, 10000);
+        AgentSwitch core2 = new AgentSwitch(dc, 24, "core2", AgentSwitchPowerModel.CISCO_2960X, 10000);
         router.constant = true;
         core1.constant = true;
         core2.constant = true;
-        AgentSwitch aggregation1 = new AgentSwitch(dc, 24, "aggregation1", AgentSwitchPowerModel.CISCO_2960X, 4000);
-        AgentSwitch aggregation2 = new AgentSwitch(dc, 24, "aggregation2", AgentSwitchPowerModel.CISCO_2960X, 4000);
-        AgentSwitch aggregation3 = new AgentSwitch(dc, 24, "aggregation3", AgentSwitchPowerModel.CISCO_2960X, 4000);
-        AgentSwitch aggregation4 = new AgentSwitch(dc, 24, "aggregation4", AgentSwitchPowerModel.CISCO_2960X, 4000);
-        AgentSwitch access1 = new AgentSwitch(dc, 24, "access1", AgentSwitchPowerModel.CISCO_2960X, 4000);
-        AgentSwitch access2 = new AgentSwitch(dc, 24, "access2", AgentSwitchPowerModel.CISCO_2960X, 4000);
-        AgentSwitch access3 = new AgentSwitch(dc, 24, "access3", AgentSwitchPowerModel.CISCO_2960X, 4000);
-        AgentSwitch access4 = new AgentSwitch(dc, 24, "access4", AgentSwitchPowerModel.CISCO_2960X, 4000);
-        AgentSwitch access5 = new AgentSwitch(dc, 24, "access5", AgentSwitchPowerModel.CISCO_2960X, 4000);
-        AgentSwitch access6 = new AgentSwitch(dc, 24, "access6", AgentSwitchPowerModel.CISCO_2960X, 4000);
+        AgentSwitch aggregation1 = new AgentSwitch(dc, 24, "aggregation1", AgentSwitchPowerModel.CISCO_2960X, 10000);
+        AgentSwitch aggregation2 = new AgentSwitch(dc, 24, "aggregation2", AgentSwitchPowerModel.CISCO_2960X, 10000);
+        AgentSwitch aggregation3 = new AgentSwitch(dc, 24, "aggregation3", AgentSwitchPowerModel.CISCO_2960X, 10000);
+        AgentSwitch aggregation4 = new AgentSwitch(dc, 24, "aggregation4", AgentSwitchPowerModel.CISCO_2960X, 10000);
+        AgentSwitch access1 = new AgentSwitch(dc, 24, "access1", AgentSwitchPowerModel.CISCO_2960X, 10000);
+        AgentSwitch access2 = new AgentSwitch(dc, 24, "access2", AgentSwitchPowerModel.CISCO_2960X, 10000);
+        AgentSwitch access3 = new AgentSwitch(dc, 24, "access3", AgentSwitchPowerModel.CISCO_2960X, 10000);
+        AgentSwitch access4 = new AgentSwitch(dc, 24, "access4", AgentSwitchPowerModel.CISCO_2960X, 10000);
+        AgentSwitch access5 = new AgentSwitch(dc, 24, "access5", AgentSwitchPowerModel.CISCO_2960X, 10000);
+        AgentSwitch access6 = new AgentSwitch(dc, 24, "access6", AgentSwitchPowerModel.CISCO_2960X, 10000);
 
         // * we're purposely not putting the router in the list
         dc.getAgentSwitchs().put(core1.getId(), core1);

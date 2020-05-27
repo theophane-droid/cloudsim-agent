@@ -64,7 +64,7 @@ public class Utils {
         System.out.println("===========Switchs==========");
         for(int i : dc.getAgentSwitchs().keySet()){
             AgentSwitch a = dc.getAgentSwitchs().get(i);
-            System.out.println("    switch " + a.getName() + " ( is active : " + a.isActive() + " ) ");
+            System.out.println("    switch " + a.getName() + " ( is active : " + a.isActive() + " ) id = " + a.getId());
         }
     }
     /**

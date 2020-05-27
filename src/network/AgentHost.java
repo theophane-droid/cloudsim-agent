@@ -132,7 +132,7 @@ public class AgentHost extends PowerHostUtilizationHistory{
      * @return true if the utilization is out the bounds
      **/
     private boolean checkDaemon() {
-        if(getUtilizationOfCpu()<Vars.DAEMON_LOWER_BOUND || getUtilizationOfCpu()>Vars.DAEMON_UPPER_BOUND){
+        if(getUtilizationOfCpu()<Vars.DAEMON_HOST_LOWER_BOUND || getUtilizationOfCpu()>Vars.DAEMON_HOST_UPPER_BOUND){
             ((AgentDatacenter)getDatacenter()).sendAgentTo((AgentHost) getDatacenter().getHostList().get(0), this);
             return true;
         }
@@ -157,13 +157,13 @@ public class AgentHost extends PowerHostUtilizationHistory{
      * If you call this method, that activates the daemon wich will call the Agent under lower bound and overhead upper bound of cpu utilization
      */
     public void startDaemon(){
-        if(Vars.DAEMON_LOWER_BOUND<0 || Vars.DAEMON_LOWER_BOUND>1){
+        if(Vars.DAEMON_HOST_LOWER_BOUND <0 || Vars.DAEMON_HOST_LOWER_BOUND >1){
             throw new RuntimeException("Vars.DAEMON_LOWER_SHOULD be between 0 and 1, check the simulation.ini file");
         }
-        if(Vars.DAEMON_UPPER_BOUND<0 || Vars.DAEMON_UPPER_BOUND>1){
+        if(Vars.DAEMON_HOST_UPPER_BOUND <0 || Vars.DAEMON_HOST_UPPER_BOUND >1){
             throw new RuntimeException("Vars.DAEMON_UPPER_BOUND be between 0 and 1, check the simulation.ini file");
         }
-        if(Vars.DAEMON_UPPER_BOUND<=Vars.DAEMON_LOWER_BOUND){
+        if(Vars.DAEMON_HOST_UPPER_BOUND <=Vars.DAEMON_HOST_LOWER_BOUND){
             throw new RuntimeException("Vars.DAEMON_UPPER_BOUND should be greater that Vars.DAEMON_LOWER_BOUND, check the simulation.ini file");
         }
         isRunningDaemon = true;

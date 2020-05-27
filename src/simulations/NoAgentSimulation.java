@@ -53,7 +53,6 @@ public class NoAgentSimulation extends SimulationRunner {
         NetworkHelper.buildNetwork(agentDatacenter);
 
         // * we sent the agent once
-        //agentDatacenter.sendAgent();
         Action action = new Action() {
             private AgentDatacenter dc = agentDatacenter;
             @Override
