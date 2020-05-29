@@ -31,7 +31,8 @@ public class Vars {
         MEAN_CLOUDLET_BW_CONSUMPTION = setDouble(ini,"MEAN_CLOUDLET_BW_CONSUMPTION".toLowerCase(),MEAN_CLOUDLET_BW_CONSUMPTION);
         MIPS_DAEMON_UTILIZATION = setDouble(ini, "DaemonBased","MIPS_DAEMON_UTILIZATION".toLowerCase(), MIPS_DAEMON_UTILIZATION);
         MIPS_AGENT_UTILIZATION = setDouble(ini, "agent","MIPS_AGENT_UTILIZATION".toLowerCase(), MIPS_AGENT_UTILIZATION);
-        BW_AGENT_UTILIZATION = setDouble(ini, "agent","BW_AGENT_UTILIZATION".toLowerCase(), BW_AGENT_UTILIZATION);
+        BW_AGENT_UTILIZATION = setDouble(ini, "agent","BW_AGENT_UTILIZATION".toLowerCase(), BW_AGENT_UTILIZATION)+
+                setDouble(ini,"agent","agent_size", BW_AGENT_UTILIZATION);
         MEAN_CLOUDLET_LENGTH = setDouble(ini, "cloudlets", "MEAN_CLOUDLET_LENGTH".toLowerCase(), MEAN_CLOUDLET_LENGTH);
         STANDARD_CLOUDLET_DEVIATION = setDouble(ini, "cloudlets", "STANDARD_CLOUDLET_DEVIATION".toLowerCase(), STANDARD_CLOUDLET_DEVIATION);
         DAEMON_HOST_UPPER_BOUND = setFloat(ini, "Bounds", "upper_host_bound_ratio", DAEMON_HOST_UPPER_BOUND);
