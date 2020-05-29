@@ -190,4 +190,19 @@ public class AgentHost extends PowerHostUtilizationHistory{
         }
         sw.propagateUpBandwidthConsumtion(Vars.MEAN_CLOUDLET_BW_CONSUMPTION*nbCloudlets);
     }
+    protected double getPower(double utilization) {
+        double power = 0.0D;
+
+        try {
+            double temp = utilization>1 ? 1: utilization;
+            power = this.getPowerModel().getPower(temp);
+        } catch (Exception var6) {
+            var6.printStackTrace();
+            System.exit(0);
+        }
+
+        return power;
+    }
+
+
 }
