@@ -38,10 +38,6 @@ public class Vars {
         DAEMON_HOST_LOWER_BOUND = setFloat(ini, "Bounds","lower_host_bound_ratio", DAEMON_HOST_LOWER_BOUND);
         DAEMON_SWITCH_UPPER_BOUND = setFloat(ini, "Bounds", "upper_switch_bound_ratio", DAEMON_SWITCH_UPPER_BOUND);
         DAEMON_SWITCH_LOWER_BOUND = setFloat(ini, "Bounds", "lower_switch_bound_ratio", DAEMON_SWITCH_LOWER_BOUND);
-        System.out.println("1 : " + DAEMON_SWITCH_LOWER_BOUND);
-        System.out.println("2 : " + DAEMON_SWITCH_UPPER_BOUND);
-        System.out.println("3 : " + DAEMON_HOST_LOWER_BOUND);
-        System.out.println("4 : " + DAEMON_HOST_UPPER_BOUND);
     }
     private static double setDouble(Wini ini, String k2, double val){
         double d = ini.get("vars", k2, Double.TYPE);
@@ -58,7 +54,6 @@ public class Vars {
             return val;
     }
     private static float setFloat(Wini ini, String k1, String k2, float val){
-        System.out.println("set float " + k1 + " " + k2 );
         float f = ini.get(k1, k2, Float.TYPE);
         if(Math.abs(f)>0.0001)
             return f;

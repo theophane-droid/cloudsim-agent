@@ -265,8 +265,7 @@ public class AgentSwitch extends SimEntity {
             powerConsumptionHistory.add(new Pair<>(CloudSim.clock(), powerModel.getPowerConsumption(this)));
         else
             powerConsumptionHistory.add(new Pair<>(CloudSim.clock(),0.d));
-        if(isActive && isRunningDaemon)
-            checkDaemon();
+        optimizeConsumption();
     }
 
     private boolean checkDaemon() {
@@ -282,6 +281,25 @@ public class AgentSwitch extends SimEntity {
         if(modification)
             ((AgentDatacenter)dc).sendAgentTo((AgentHost) dc.getHostList().get(dc.getHostList().size()-1), this);
         return modification;
+    }
+
+    /**
+     * This method allow agent switch to optimize his own consumption by himself
+     */
+    private void optimizeConsumption(){
+        boolean shouldBeShutDown = true;
+        if(isAccess()) {
+            List<Pair<Boolean, Port>> l = sortUsedAndUnusedConnexions();
+            for (Pair<Boolean, Port> p : l) {
+                shouldBeShutDown = p.getFirst() || !shouldBeShutDown;
+                p.getSecond().setOpen(p.getFirst());
+            }
+        }
+        if(isAggregation() && isRunningDaemon){
+            if(getUtilization()<Vars.DAEMON_SWITCH_LOWER_BOUND || getUtilization()>Vars.DAEMON_SWITCH_UPPER_BOUND){
+                ((AgentDatacenter)dc).sendAgentTo((AgentHost) dc.getHostList().get(0), this);
+            }
+        }
     }
 
     /**
@@ -398,9 +416,17 @@ public class AgentSwitch extends SimEntity {
         return getName().contains("access");
     }
 
+    /**
+     * @return true if i's a core switch
+     */
     public boolean isCore(){
         return getName().contains("core");
     }
+
+    /**
+     * @return true if i's an aggregation switch
+     */
+    public boolean isAggregation(){return getName().contains("aggregation");}
 
     public double getUtilization(){
         return traffic/bandwidth;
@@ -408,5 +434,11 @@ public class AgentSwitch extends SimEntity {
 
     public void setTraffic(double traffic) {
         this.traffic = traffic;
+    }
+    public boolean isUnderUtilized(){
+        return getUtilization()<Vars.DAEMON_SWITCH_LOWER_BOUND;
+    }
+    public boolean isOverUtilized(){
+        return getUtilization()>Vars.DAEMON_SWITCH_UPPER_BOUND;
     }
 }

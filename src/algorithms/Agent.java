@@ -23,8 +23,12 @@ import java.util.Map;
  */
 public class Agent {
     private AgentDatacenter agentDatacenter;
+    private double injectionTime;
+    public static double total_running_host_time;
+    public static double total_running_switch_time;
     public Agent(AgentDatacenter agentDatacenter){
         this.agentDatacenter = agentDatacenter;
+        injectionTime=CloudSim.clock();
     }
 
     /**
@@ -55,6 +59,7 @@ public class Agent {
             }
         }
         host.agentAsBeenRunning=true;
+        total_running_host_time+=CloudSim.clock()-injectionTime;
         return migrationMap!=null;
     }
     /**
@@ -63,29 +68,31 @@ public class Agent {
      * @return true if modification has been done on AgentSwitch
      */
     public boolean action(AgentSwitch sw){
-        boolean modification = false;
-        if(sw.isAccess()){
-            List<Pair<Boolean, Port>> m = sw.sortUsedAndUnusedConnexions();
-            boolean allPortDown = true;
-            for(Pair<Boolean, Port> p: m){
-                if(p.getFirst()) {
-                    allPortDown = false;
-                    break;
-                }
-            }
-            modification = sw.isActive()==allPortDown;
-            sw.setIsActive(!allPortDown);
-            for (Pair<Boolean, Port> p : m) {
-                p.getSecond().setOpen(p.getFirst());
-                modification=p.getFirst()!=p.getSecond().isOpen() || modification;
-                p.getSecond().setOpen(p.getFirst());
-            }
+        AgentSwitch ag1 = agentDatacenter.getSwitchByName("aggregation1");
+        AgentSwitch ag2 = agentDatacenter.getSwitchByName("aggregation2");
+        AgentSwitch ag3 = agentDatacenter.getSwitchByName("aggregation3");
+        AgentSwitch ag4 = agentDatacenter.getSwitchByName("aggregation4");
+        if(sw.isOverUtilized()){
+            if(sw==ag1 && !ag2.isActive())
+                ag2.setIsActive(true);
+            if(sw==ag2 && !ag1.isActive())
+                ag1.setIsActive(true);
+            if(sw==ag3 && !ag4.isActive())
+                ag4.setIsActive(true);
+            if(sw==ag4 && !ag3.isActive())
+                ag3.setIsActive(true);
         }
-        else if(!sw.isCore()) {
-            modification = (sw.getUtilization() < Vars.DAEMON_SWITCH_LOWER_BOUND && sw.getPowerConsumptionHistory().size() != 0) != sw.isActive();
-            sw.setIsActive((sw.getUtilization() >= Vars.DAEMON_SWITCH_LOWER_BOUND && sw.getPowerConsumptionHistory().size() != 0));
+        else if(sw.isUnderUtilized()){
+            if(sw==ag1 && ag2.isActive() && !ag2.isOverUtilized())
+                ag1.setIsActive(false);
+            if(sw==ag2 && ag1.isActive() && !ag1.isOverUtilized())
+                ag2.setIsActive(false);
+            if(sw==ag3 && ag4.isActive() && !ag4.isOverUtilized())
+                ag3.setIsActive(false);
+            if(sw==ag4 && ag3.isActive() && !ag3.isOverUtilized())
+                ag4.setIsActive(false);
         }
-        sw.updateConnexions();
-        return modification;
+        total_running_switch_time+=CloudSim.clock()-injectionTime;
+        return false;
     }
 }

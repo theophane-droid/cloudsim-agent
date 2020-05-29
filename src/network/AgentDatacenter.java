@@ -157,4 +157,11 @@ public class AgentDatacenter extends PowerDatacenter {
     public void shutdownEntity() {
 
     }
+    public AgentSwitch getSwitchByName(String name){
+        for(int i :getAgentSwitchs().keySet()){
+            if(getAgentSwitchs().get(i).getName().equals(name))
+                return getAgentSwitchs().get(i);
+        }
+        return null;
+    }
 }

@@ -1,5 +1,6 @@
 package simulations;
 
+import algorithms.Agent;
 import network.AgentDatacenter;
 import network.AgentHost;
 import network.AgentSwitch;
@@ -209,6 +210,12 @@ public class NetworkHelper {
         Log.printLine("host consumption : " + power_result.getFirst()/(3600*1000) + " kWh");
         Log.printLine("switch consumption : " + power_result.getSecond()/(3600*1000) + " kWh");
         Log.printLine("total: " + (power_result.getFirst()+power_result.getSecond())/(3600*1000) + " kWh");
+        Log.printLine("\n\n**********General**********");
+        Log.printLine("simulation duration : " + (int)lastClock + " s");
+        Log.printLine("total agent duration time on hosts : " + (int)Agent.total_running_host_time + " s");
+        Log.printLine("total agent duration time on switchs : " + (int)Agent.total_running_switch_time+ " s");
+        Log.printLine("mean agent duration time per host : " + (int)Agent.total_running_host_time/datacenter.getHostList().size()+ " s");
+        Log.printLine("mean agent duration time per switchs : " + (int)Agent.total_running_switch_time/datacenter.getHostList().size()+ " s");
         return power_result;
     }
     public static List<Cloudlet> createCloudletList(int brokerId, int nbCloudlet,List<Vm> vmList, double mean) {
