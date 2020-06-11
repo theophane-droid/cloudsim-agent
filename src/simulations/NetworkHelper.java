@@ -9,7 +9,6 @@ import org.apache.commons.math3.util.Pair;
 import org.cloudbus.cloudsim.*;
 import org.cloudbus.cloudsim.examples.power.Constants;
 import org.cloudbus.cloudsim.network.datacenter.*;
-import org.cloudbus.cloudsim.power.PowerVm;
 import org.cloudbus.cloudsim.power.PowerVmAllocationPolicyMigrationAbstract;
 import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
@@ -207,9 +206,9 @@ public class NetworkHelper {
         Log.printLine(vmList.size() + " vms");
         Log.printLine("\n\n********Power consumption*******");
         Pair<Double, Double> power_result = datacenter.getPower2();
-        Log.printLine("host consumption : " + power_result.getFirst()/(3600*1000) + " kWh");
-        Log.printLine("switch consumption : " + power_result.getSecond()/(3600*1000) + " kWh");
-        Log.printLine("total: " + (power_result.getFirst()+power_result.getSecond())/(3600*1000) + " kWh");
+        Log.printLine("host consumption : " + power_result.getFirst()/(lastClock/(3600)*1000) + " kWh");
+        Log.printLine("switch consumption : " + power_result.getSecond()/(lastClock/(3600)*1000) + " kWh");
+        Log.printLine("total: " + (power_result.getFirst()+power_result.getSecond())/(lastClock/(3600)*1000) + " kWh");
         Log.printLine("\n\n**********General**********");
         Log.printLine("simulation duration : " + (int)lastClock + " s");
         Log.printLine("total agent duration time on hosts : " + (int)Agent.total_running_host_time + " s");
@@ -238,7 +237,7 @@ public class NetworkHelper {
 
     public static List<Cloudlet> createRandomizedCloudletList(int brokerId, int nbCloudlet, List<Vm> vmList, long meanCloudletLength, long stdDeviation){
         List<Cloudlet> list = new ArrayList();
-        List<Long> values = Utils.generateRandomizedValues2(meanCloudletLength, stdDeviation, nbCloudlet);
+        List<Long> values = Utils.generateRandomizedValues(meanCloudletLength, stdDeviation, nbCloudlet);
         long fileSize = 300L;
         long seed = 1L;
         long outputSize = 300L;

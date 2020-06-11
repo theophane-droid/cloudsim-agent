@@ -48,7 +48,7 @@ public class AgentDatacenter extends PowerDatacenter {
             double smallerTime = 1.7976931348623157E308D;
 
             for(int i = 0; i < list.size(); ++i) {
-                Host host = (Host)list.get(i);
+                Host host = list.get(i);
                 double time = host.updateVmsProcessing(CloudSim.clock());
                 if (time < smallerTime) {
                     smallerTime = time;

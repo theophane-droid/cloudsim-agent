@@ -24,7 +24,6 @@ public class Vars {
     // * cloudlets section
     public static double MEAN_CLOUDLET_LENGTH = 1000;
     public static double STANDARD_CLOUDLET_DEVIATION = 100;
-    // * switch section
     public static void loadFromIniFile(Wini ini){
         SAFETY_PARAMETER = setDouble(ini,"SAFETY_PARAMETER".toLowerCase(), SAFETY_PARAMETER);
         POWER_MEASURE_INTERVAL = setDouble(ini,"POWER_MEASURE_INTERVAL".toLowerCase(),POWER_MEASURE_INTERVAL);

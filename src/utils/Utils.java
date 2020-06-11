@@ -67,21 +67,6 @@ public class Utils {
             System.out.println("    switch " + a.getName() + " ( is active : " + a.isActive() + " ) id = " + a.getId());
         }
     }
-    /**
-     * This method use the reverse normal law, to generate a set of value
-     * @param mean
-     * @param standardDeviation
-     * @param  numberOfValues
-     * @return the list of values
-     */
-    public static List<Long> generateRandomizedValues(double mean, double standardDeviation, int numberOfValues){
-        List<Long> result = new ArrayList<>();
-        NormalDistribution distribution = new NormalDistribution(mean, standardDeviation);
-        for(int i=0; i<numberOfValues; i++) {
-            result.add((long) distribution.sample());
-        }
-        return result;
-    }
 
     /**
      * @param list the related list
@@ -114,7 +99,7 @@ public class Utils {
      * @param  numberOfValues
      * @return the list of values
      */
-    public static List<Long> generateRandomizedValues2(double mean, double standardDeviation, int numberOfValues){
+    public static List<Long> generateRandomizedValues(double mean, double standardDeviation, int numberOfValues){
         List<Long> result = new ArrayList<>();
         List<Double> result0 = new ArrayList<>();
         for(int i=0; i<numberOfValues; i++){
